@@ -11,6 +11,7 @@ import gate.CorpusController;
 import gate.Factory;
 import gate.Factory.DuplicationContext;
 import gate.FeatureMap;
+import gate.GateConstants;
 import gate.LanguageAnalyser;
 import gate.ProcessingResource;
 import gate.Resource;
@@ -24,14 +25,21 @@ import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
 import gate.creole.metadata.RunTime;
+import gate.gui.ActionsPublisher;
+import gate.gui.MainFrame;
 import gate.persist.PersistenceException;
 import gate.util.GateRuntimeException;
 import gate.util.persistence.PersistenceManager;
+import java.awt.event.ActionEvent;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import static javax.swing.Action.SHORT_DESCRIPTION;
 
 import org.apache.log4j.Logger;
 
@@ -200,6 +208,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
         } // for
       } // if we have parameter overrides
       // now override any parameters from configured from the properties file
+      //System.out.println("Trying to set controller parms for "+controller.getName());
       setControllerParms(controller);
       // finally set the document features
       if(document != null && docFeaturesFromConfig != null) {

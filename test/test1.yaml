@@ -15,3 +15,7 @@
 - set: docfeature
   name: feature3
   value: {k1: v1, k2: 25}
+- set: prrun
+  controller: Sub01
+  prname: groovy
+  value: false
