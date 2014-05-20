@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<CREOLE-DIRECTORY VERSION="0.6" ID="com.jpetrak.ModularPipelines"
+  DESCRIPTION="Represent sub-pipelines as processing resources to make it easier to build modular pipelines"
+  HELPURL="http://code.google.com/p/gateplugin-modularpipelines/"
+ >
+  <JAR SCAN="true">ModularPipelines.jar</JAR>
+</CREOLE-DIRECTORY>
