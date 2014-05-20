@@ -1,0 +1,17 @@
+## sample yaml config file
+
+
+- set: prparm
+  controller: Sub01
+  prname: groovy
+  name: scriptParams
+  value: "k1=v1;k2=v2"
+- set: docfeature
+  name: feature1
+  value: "25"
+- set: docfeature
+  name: feature2
+  value: 25
+- set: docfeature
+  name: feature3
+  value: {k1: v1, k2: 25}

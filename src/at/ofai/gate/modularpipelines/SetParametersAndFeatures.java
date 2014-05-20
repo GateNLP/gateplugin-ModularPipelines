@@ -7,9 +7,6 @@ import gate.creole.ExecutionException;
 import gate.creole.metadata.CreoleResource;
 import gate.util.GateRuntimeException;
 
-// TODO: support other formats for the confiug file? 
-
-
 /**
  * Set parameters and features from a config file.
  * This PR can be used to set document features and PR parameters from the
@@ -19,7 +16,7 @@ import gate.util.GateRuntimeException;
  */
 @CreoleResource(name = "SetParametersAndFeatures",
         comment = "Set parameters and features of controller, corpus, PR etc from property files",
-        helpURL="http://code.google.com/p/gateplugin-modularpipelines/wiki/SetParametersAndFeatures")
+        helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/SetParametersAndFeatures-PR")
 
 // This is a PR which lets the user, for each kind of setting, specify a property
 // file which will set the features or parameters from that property file.

@@ -1,4 +1,4 @@
-<project name="ModularPipelines" basedir="." default="jar">
+<project name="ModularPipelines-github" basedir="." default="jar">
 
   <property file="build.properties" />
 

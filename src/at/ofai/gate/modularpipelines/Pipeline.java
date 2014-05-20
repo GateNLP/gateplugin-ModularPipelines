@@ -35,6 +35,10 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+// TODO: save/restore parameter values for both config and parm settings
+// TODO: add debug setting to prevent restoring the parameter values and
+//       enable some debug output
+// TODO: add feature to delete document feature: deletedocfeature
 
 /** 
  * A processing resource that wraps a controller loaded from a pipeline file.
@@ -49,7 +53,7 @@ import org.apache.log4j.Logger;
  */
 @CreoleResource(name = "Pipeline",
         comment = "Represents a pipeline or corpus pipeline loaded from a xgapp/gapp file",
-        helpURL="http://code.google.com/p/gateplugin-modularpipelines/wiki/PipelinePR")
+        helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Pipline-PR")
 public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   implements ProcessingResource, CustomDuplication, ControllerAwarePR {
   private static final long serialVersionUID = 1L;
@@ -154,6 +158,9 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
         for(Object keyObject : pipelineParameters.keySet()) {
           String key = (String)keyObject;
           String[] prparm = key.split("->",2);
+          if(prparm.length != 2) {
+            throw new GateRuntimeException("Not a correct pipeline parameter key (must be prname->prparm): "+key);
+          }
           String prname = prparm[0];
           String parmname = prparm[1]; 
           // try to find the PR
@@ -168,7 +175,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
               parmSaved = true;
             } catch (ResourceInstantiationException e) {
               // TODO Auto-generated catch block
-              System.err.println("Got an exception trying to save the parameter value for "+key);
+              System.err.println("Parameter not set, got an exception trying to save the parameter value for "+key);
               e.printStackTrace(System.err);
             }
             // if we could save the value, try to set the new value
@@ -181,6 +188,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
                   string = gate.Utils.replaceVariablesInString(string, corpus.getFeatures(), controller.getFeatures(),this.getFeatures());
                   value = string;
                 }
+                //System.err.println("Trying to set parameter "+parmname+" to value "+value+" for "+pr.getName());
                 pr.setParameterValue(parmname, value);
               } catch (ResourceInstantiationException e) {
                 System.err.println("Got an exception trying to set the new value for "+key);
@@ -194,7 +202,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       // now override any parameters from configured from the properties file
       setControllerParms(controller);
       // finally set the document features
-      if(document != null) {
+      if(document != null && docFeaturesFromConfig != null) {
         document.getFeatures().putAll(docFeaturesFromConfig);
       }
       controller.execute();
