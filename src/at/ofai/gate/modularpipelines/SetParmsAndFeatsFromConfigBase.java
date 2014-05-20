@@ -180,7 +180,7 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
                 String name = (String) config.get("name");
                 Object value = config.get("value");
                 if (controller == null || prname == null || name == null) {
-                  throw new GateRuntimeException("config setting prparm: controller, prname, or name not given");
+                  throw new GateRuntimeException("config setting prparm: controller, prname, or name not given: "+config);
                 }
                 String prId = controller + "\t" + prname;
                 Map<String, Object> prparm = prParms.get(prId);
@@ -195,11 +195,11 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
                 String prname = (String) config.get("prname");
                 String name = "$$RUNFLAG$$";
                 if (controller == null || prname == null) {
-                  throw new GateRuntimeException("config setting prparm: controller or prname is not given");
+                  throw new GateRuntimeException("config setting prparm: controller or prname is not given: "+config);
                 }
                 Object value = config.get("value");
                 if (!(value instanceof Boolean)) {
-                  throw new GateRuntimeException("config setting value for prrun is not true or false");
+                  throw new GateRuntimeException("config setting value for prrun is not true or false: "+config);
                 }
                 String prId = controller + "\t" + prname;
                 Map<String, Object> prparm = prParms.get(prId);
@@ -212,7 +212,7 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
                 String name = (String) config.get("name");
                 Object value = config.get("value");
                 if (name == null || value == null) {
-                  throw new GateRuntimeException("config setting docfeature: name or value is null");
+                  throw new GateRuntimeException("config setting docfeature: name or value is null: "+config);
                 }
                 docFeaturesFromConfig.put(name, value);
               } else if (what.equals("propset")) {
