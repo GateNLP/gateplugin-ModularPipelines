@@ -185,7 +185,7 @@ public class Utils {
   
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
-    //System.out.println("Setting controller parms for " + cntrlr.getName());
+    System.out.println("Setting controller parms for " + cntrlr.getName());
     if (config.prParms != null) {
       String cName = cntrlr.getName();
       ConditionalController condController = null;
@@ -216,11 +216,11 @@ public class Utils {
         //System.out.println("Checking ID: " + prId + " controller is " + cName);
         String[] contrprname = prId.split("\t");
         if (contrprname[0].equals(cName)) {
-          int id = prNums.get(prId);
-          ProcessingResource pr = prs.get(id);
-          if (pr == null) {
+          Integer id = prNums.get(prId);
+          if (id == null) {
             throw new GateRuntimeException("Cannot set PR parameter, no PR found with id: " + prId);
           }
+          ProcessingResource pr = prs.get(id);
           Map<String, Object> prparm = config.prParms.get(prId);
           for (String parmName : prparm.keySet()) {
             Object parmValue = prparm.get(parmName);
