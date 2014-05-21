@@ -33,7 +33,6 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserController
   implements ActionsPublisher {
   
-  @RunTime
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
@@ -46,16 +45,11 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
     return configFileUrl;
   }
   protected URL configFileUrl = null;
-  protected URL oldConfigFileUrl = null;
 
   Config config;
   
   @Override public Resource init() {
-    // NOTE: we always do this, even if getConfigFileUrl is null so that
-    // the readConfigFile method can load the config file defined 
-    // for system property at.ofai.gate.modularpipelines.configFile
     config = Utils.readConfigFile(getConfigFileUrl());
-    oldConfigFileUrl = configFileUrl;
     return this;
   }
   
@@ -66,10 +60,6 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
   
   @Override
   public void execute() throws ExecutionException {
-    if(oldConfigFileUrl != configFileUrl) {
-      config = Utils.readConfigFile(configFileUrl);
-      oldConfigFileUrl = configFileUrl;
-    }
     Utils.setControllerParms(this, config);
     super.execute();
   }
@@ -98,7 +88,6 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
                 try {                
                   MainFrame.lockGUI("Reading config file "+getConfigFileUrl()+"...");
                   config = Utils.readConfigFile(getConfigFileUrl());
-                  oldConfigFileUrl = configFileUrl;
                 } finally {
                   MainFrame.unlockGUI();
                 }
