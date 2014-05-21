@@ -135,7 +135,7 @@
       </localList>
       <collectionType>java.util.ArrayList</collectionType>
     </prList>
-    <resourceType>at.ofai.gate.modularpipelines.ParametrizedCorpusPipeline</resourceType>
+    <resourceType>at.ofai.gate.modularpipelines.ParametrizedCorpusController</resourceType>
     <resourceName>ParmPipelineMain</resourceName>
     <initParams class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>

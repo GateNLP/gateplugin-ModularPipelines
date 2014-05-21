@@ -12,7 +12,6 @@ import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
-import gate.creole.metadata.RunTime;
 import gate.gui.ActionsPublisher;
 import gate.gui.MainFrame;
 import java.awt.event.ActionEvent;
@@ -27,10 +26,10 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
  *
  * @author johann
  */
-@CreoleResource(name = "Parametrized Corpus Pipeline",
+@CreoleResource(name = "Parametrized Corpus Controller",
         comment = "A conditional corpus controller that can be parametrized from a config file",
-        helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Pipline-PR")
-public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserController
+        helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/ParametrziedCorpusController")
+public class ParametrizedCorpusController extends ConditionalSerialAnalyserController
   implements ActionsPublisher {
   
   @Optional
