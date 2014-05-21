@@ -1,7 +1,6 @@
 package at.ofai.gate.modularpipelines;
 
 import gate.Controller;
-import gate.Resource;
 import gate.creole.ControllerAwarePR;
 import gate.creole.ExecutionException;
 import gate.creole.metadata.CreoleResource;
@@ -27,23 +26,21 @@ public class SetParametersAndFeatures extends SetParmsAndFeatsFromConfigBase
 
   
   
-  @Override
-  public Resource init() {
-    readConfigFile();
-    return this;
-  }
-  
   protected Controller controller = null;
   
   @Override
   public void execute() {
+    if(oldConfigFileUrl != configFileUrl) {
+      config = Utils.readConfigFile(configFileUrl);
+      oldConfigFileUrl = configFileUrl;
+    }
     if(controller != null) {
       setControllerParms(controller);
     } else {
       throw new GateRuntimeException("Something is very wrong: controller is null!");
     }
-    if(getDocument() != null) {
-      getDocument().getFeatures().putAll(docFeaturesFromConfig);
+    if(getDocument() != null && config.docFeatures != null) {
+      getDocument().getFeatures().putAll(config.docFeatures);
     }
     // TODO: maybe: restore parameters?
   }

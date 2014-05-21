@@ -131,6 +131,11 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     // (if a corpus controller is invoked inside a corpus controller, the
     // document is set and the inner controller is only run on that single
     // document while the corpus is ignored).
+    if(oldConfigFileUrl != configFileUrl) {
+      config = Utils.readConfigFile(configFileUrl);
+      oldConfigFileUrl = configFileUrl;
+    }
+    
     if(controller instanceof CorpusController) {      
       ((CorpusController)controller).setCorpus(corpus);      
     }

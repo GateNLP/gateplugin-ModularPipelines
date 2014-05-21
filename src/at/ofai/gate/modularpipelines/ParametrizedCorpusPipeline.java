@@ -12,6 +12,7 @@ import gate.creole.ResourceInstantiationException;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
+import gate.creole.metadata.RunTime;
 import gate.gui.ActionsPublisher;
 import gate.gui.MainFrame;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,7 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserController
   implements ActionsPublisher {
   
+  @RunTime
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
@@ -44,11 +46,13 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
     return configFileUrl;
   }
   protected URL configFileUrl = null;
+  protected URL oldConfigFileUrl = null;
 
   Config config;
   
   @Override public Resource init() {
     config = Utils.readConfigFile(getConfigFileUrl());
+    oldConfigFileUrl = configFileUrl;
     return this;
   }
   
@@ -59,6 +63,10 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
   
   @Override
   public void execute() throws ExecutionException {
+    if(oldConfigFileUrl != configFileUrl) {
+      config = Utils.readConfigFile(configFileUrl);
+      oldConfigFileUrl = configFileUrl;
+    }
     Utils.setControllerParms(this, config);
     super.execute();
   }
@@ -83,11 +91,17 @@ public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserControl
           Runnable runnableAction = new Runnable() {
             @Override
             public void run() {
-              try {
-                MainFrame.lockGUI("Reading config file "+getConfigFileUrl()+"...");
-                config = Utils.readConfigFile(getConfigFileUrl());
-              } finally {
-                MainFrame.unlockGUI();
+              if(getConfigFileUrl() != null) {
+                try {                
+                  MainFrame.lockGUI("Reading config file "+getConfigFileUrl()+"...");
+                  config = Utils.readConfigFile(getConfigFileUrl());
+                  oldConfigFileUrl = configFileUrl;
+                } finally {
+                  MainFrame.unlockGUI();
+                }
+                System.out.println("Reloaded config file "+getConfigFileUrl());
+              } else {
+                System.out.println("Nothing re-loaded, not config file set");
               }
             }
           };

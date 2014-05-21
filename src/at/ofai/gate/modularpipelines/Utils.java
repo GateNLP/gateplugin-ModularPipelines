@@ -30,6 +30,7 @@ import org.yaml.snakeyaml.Yaml;
 public class Utils {
   protected static Config readConfigFile(URL configFileUrl) {
     // first read the document features property file
+    System.out.println("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
     File configFile = null;
     if (configFileUrl != null) {

@@ -2,24 +2,18 @@ package at.ofai.gate.modularpipelines;
 
 import gate.Controller;
 import gate.GateConstants;
-import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.AbstractLanguageAnalyser;
-import gate.creole.AnalyserRunningStrategy;
-import gate.creole.ConditionalController;
 import gate.creole.ResourceInstantiationException;
-import gate.creole.RunningStrategy;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.Optional;
+import gate.creole.metadata.RunTime;
 import gate.gui.ActionsPublisher;
 import gate.gui.MainFrame;
-import gate.util.GateRuntimeException;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SHORT_DESCRIPTION;
@@ -56,6 +50,7 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
   //   controller: controllerName
   //   prname: processingResourceName
   //   value: true/false
+  @RunTime
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
@@ -68,10 +63,12 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
     return configFileUrl;
   }
   protected URL configFileUrl = null;
-
+  protected URL oldConfigFileUrl = null;
+  
   @Override
   public Resource init() throws ResourceInstantiationException {
     config = Utils.readConfigFile(getConfigFileUrl());
+    oldConfigFileUrl = configFileUrl;
     return this;
   }
   protected Config config;
@@ -101,11 +98,17 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
           Runnable runnableAction = new Runnable() {
             @Override
             public void run() {
-              try {
-                MainFrame.lockGUI("Reading config file "+getConfigFileUrl()+"...");
-                config = Utils.readConfigFile(getConfigFileUrl());
-              } finally {
-                MainFrame.unlockGUI();
+              if(getConfigFileUrl() != null) {
+                try {                
+                  MainFrame.lockGUI("Reading config file "+getConfigFileUrl()+"...");
+                  config = Utils.readConfigFile(getConfigFileUrl());
+                  oldConfigFileUrl = configFileUrl;
+                } finally {
+                  MainFrame.unlockGUI();
+                }
+                System.out.println("Reloaded config file "+getConfigFileUrl());
+              } else {
+                System.out.println("Nothing re-loaded, not config file set");
               }
             }
           };
