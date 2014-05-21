@@ -67,6 +67,9 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
   
   @Override
   public Resource init() throws ResourceInstantiationException {
+    // NOTE: we always do this, even if getConfigFileUrl is null so that
+    // the readConfigFile method can load the config file defined 
+    // for system property at.ofai.gate.modularpipelines.configFile
     config = Utils.readConfigFile(getConfigFileUrl());
     oldConfigFileUrl = configFileUrl;
     return this;

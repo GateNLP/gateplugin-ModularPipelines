@@ -33,11 +33,11 @@ public class Utils {
     System.out.println("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
     File configFile = null;
-    if (configFileUrl != null) {
-      configFile = gate.util.Files.fileFromURL(configFileUrl);
-    } else if (System.getProperty("modularpipelines.configFile") != null) {
+    if (System.getProperty("at.ofai.gate.modularpipelines.configFile") != null) {
       configFile = new File(System.getProperty("modularpipelines.configFile"));
-    }
+    } else if (configFileUrl != null) {
+      configFile = gate.util.Files.fileFromURL(configFileUrl);
+    } 
     if (configFile != null) {
       if (configFile.toString().endsWith(".properties")) {
         Properties properties = new Properties();
