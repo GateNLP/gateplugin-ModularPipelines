@@ -1,61 +1,37 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package at.ofai.gate.modularpipelines;
 
-import gate.Controller;
 import gate.GateConstants;
-import gate.ProcessingResource;
 import gate.Resource;
-import gate.creole.AbstractLanguageAnalyser;
-import gate.creole.AnalyserRunningStrategy;
-import gate.creole.ConditionalController;
+import gate.creole.ConditionalSerialAnalyserController;
+import gate.creole.ExecutionException;
 import gate.creole.ResourceInstantiationException;
-import gate.creole.RunningStrategy;
 import gate.creole.metadata.CreoleParameter;
+import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
 import gate.gui.ActionsPublisher;
 import gate.gui.MainFrame;
-import gate.util.GateRuntimeException;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SHORT_DESCRIPTION;
 
-public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
+/**
+ *
+ * @author johann
+ */
+@CreoleResource(name = "Parametrized Corpus Pipeline",
+        comment = "A conditional corpus controller that can be parametrized from a config file",
+        helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Pipline-PR")
+public class ParametrizedCorpusPipeline extends ConditionalSerialAnalyserController
   implements ActionsPublisher {
-
-  // For PRs, the property file must contain settings in the following form:
-  // prparm.settingid.prname = "name of the PR in the controller"
-  // prparm.settingid.name = "name of the parameter/setting for the pr"
-  // prparm.settingid.value = "value to set the parameter to"
-  // prparm.settingid.controller = "name of the controller" 
-  // anythitng that is valid as a prefix of a property name can be used instead
-  // of "pr1"
-  // For document features:
-  // docfeature.somefeaturenametoset = "the value"
-  // For properties:
-  // propset.the.property.name = "the value"
-  // For Yaml files, each setting needs to be a map and settings must be 
-  // included as a list at the top-level of the file. Each setting must 
-  // have the "set" key which must be one of prparm, docfeature or propset:
-  // - set: prparm
-  //   controller: controllerName
-  //   prname: processingResourceName
-  //   name: parameterName
-  //   value: valueToSet
-  // - set: docfeature
-  //   name: featurename
-  //   value: featurevalue
-  // - set: propset
-  //   name: propertyName
-  //   value: propertyValue
-  // - set: prrun
-  //   controller: controllerName
-  //   prname: processingResourceName
-  //   value: true/false
+  
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
@@ -69,20 +45,26 @@ public class SetParmsAndFeatsFromConfigBase extends AbstractLanguageAnalyser
   }
   protected URL configFileUrl = null;
 
-  @Override
-  public Resource init() throws ResourceInstantiationException {
+  Config config;
+  
+  @Override public Resource init() {
     config = Utils.readConfigFile(getConfigFileUrl());
     return this;
   }
-  protected Config config;
-
-  protected void setControllerParms(Controller cntrlr) {
-    Utils.setControllerParms(cntrlr, config);
+  
+  @Override
+  public void reInit() throws ResourceInstantiationException {
+    init();
+  }  
+  
+  @Override
+  public void execute() throws ExecutionException {
+    Utils.setControllerParms(this, config);
+    super.execute();
   }
   
   private List<Action> actions;
   
-  @Override
   public List<Action> getActions() {
     if (actions == null) {
       actions = new ArrayList<Action>();
