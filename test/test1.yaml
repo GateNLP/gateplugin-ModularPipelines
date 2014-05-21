@@ -19,3 +19,8 @@
   controller: Sub01
   prname: groovy
   value: false
+- set: prparm
+  controller: ParmPipelineMain
+  prname: show1
+  name: scriptParams
+  value: "key1=valueforgroovyscript"
