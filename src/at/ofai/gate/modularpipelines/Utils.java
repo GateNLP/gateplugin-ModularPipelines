@@ -159,11 +159,15 @@ public class Utils {
                 configData.docFeatures.put(name, value);
               } else if (what.equals("propset")) {
                 String name = (String) config.get("name");
-                String value = (String) config.get("value");
+                Object value = config.get("value");
                 if (name == null || value == null) {
                   throw new GateRuntimeException("config setting propset: name or value is null");
                 }
-                System.getProperties().put(name, value);
+                String valueString = null;
+                if(value != null) {
+                  valueString = value.toString();
+                }
+                System.getProperties().put(name, valueString);
               }
             } else {
               System.err.println("Config element not a map, ignoring: " + configObj);
