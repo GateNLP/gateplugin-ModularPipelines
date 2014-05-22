@@ -31,13 +31,15 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 import javax.swing.JOptionPane;
 
 /**
- *
- * @author johann
+ * Provide a right-click menu option for converting a Conditional Corpus 
+ * Controller to our Parametrized Corpus Controller.
+ * 
+ * @author Johann Petrak
  */
 @SuppressWarnings("serial")
 @CreoleResource(
         name = "Controller converter", 
-        tool = true, 
+        tool = true,        
         autoinstances = @AutoInstance, 
         comment = "Convert an existing Conditional Corpus Controller to a Parametrized Corpus Controller", 
         helpURL = "TBD")
@@ -49,7 +51,6 @@ public class ControllerConverter extends ResourceHelper {
     List<Action> actions = new ArrayList<Action>();
     if(nbh.getTarget() instanceof ConditionalSerialAnalyserController && 
        !(nbh.getTarget() instanceof ParametrizedCorpusController)) {
-      System.out.println("Adding my action for "+((NameBearer)nbh.getTarget()).getName());
       action = new MakeParametrizedCorpusControllerAction((ConditionalSerialAnalyserController)nbh.getTarget());
       actions.add(action);
     }
