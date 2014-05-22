@@ -30,7 +30,7 @@ import org.yaml.snakeyaml.Yaml;
 public class Utils {
   protected static Config readConfigFile(URL configFileUrl) {
     // first read the document features property file
-    System.out.println("DEBUG: trying to read config from "+configFileUrl);
+    // System.out.println("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
     File configFile = null;
     if (System.getProperty("at.ofai.gate.modularpipelines.configFile") != null) {
@@ -185,7 +185,7 @@ public class Utils {
   
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
-    System.out.println("Setting controller parms for " + cntrlr.getName());
+    //System.out.println("Setting controller parms for " + cntrlr.getName());
     if (config.prParms != null) {
       String cName = cntrlr.getName();
       ConditionalController condController = null;

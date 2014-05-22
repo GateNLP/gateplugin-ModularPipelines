@@ -206,7 +206,12 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       } // if we have parameter overrides
       // now override any parameters from configured from the properties file
       //System.out.println("Trying to set controller parms for "+controller.getName());
-      setControllerParms(controller);
+      if(controller instanceof ParametrizedCorpusController && 
+         isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
+        //System.out.println("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
+      } else {
+        setControllerParms(controller);
+      }
       // finally set the document features
       if(document != null && config.docFeatures != null) {
         document.getFeatures().putAll(config.docFeatures);
@@ -238,6 +243,18 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       if(controller instanceof LanguageAnalyser) {      
         ((LanguageAnalyser)controller).setDocument(null);      
       }
+    }
+  }
+  
+  boolean isEqual(Object one, Object two) {
+    if(one == null && two == null) {
+      return true;
+    } else if(one == null) {
+      return false;      
+    } else if(two == null) {
+      return false;
+    } else {
+      return one.equals(two);
     }
   }
   
