@@ -19,7 +19,6 @@ import gate.gui.NameBearerHandle;
 import gate.gui.NewResourceDialog;
 import gate.gui.ResourceHelper;
 import gate.util.Err;
-import gate.util.NameBearer;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;

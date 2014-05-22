@@ -206,6 +206,12 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       } // if we have parameter overrides
       // now override any parameters from configured from the properties file
       //System.out.println("Trying to set controller parms for "+controller.getName());
+      // TODO: we want to avoid setting stuff twice if the pipeline which we
+      // run is parametrized and with the same config file. however, just 
+      // comparing the URIs will not always work correctly if we have two
+      // diferent URIs pointing to the same file because of symbolic links
+      // or similar. We should use a different method to compare the configs
+      // (e.g. hash-code of content)
       if(controller instanceof ParametrizedCorpusController && 
          isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
         //System.out.println("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
