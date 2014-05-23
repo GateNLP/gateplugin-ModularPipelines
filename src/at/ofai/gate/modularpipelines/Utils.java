@@ -34,7 +34,7 @@ public class Utils {
     Config configData = new Config();
     File configFile = null;
     if (System.getProperty("at.ofai.gate.modularpipelines.configFile") != null) {
-      configFile = new File(System.getProperty("modularpipelines.configFile"));
+      configFile = new File(System.getProperty("at.ofai.gate.modularpipelines.configFile"));
     } else if (configFileUrl != null) {
       configFile = gate.util.Files.fileFromURL(configFileUrl);
     } 
