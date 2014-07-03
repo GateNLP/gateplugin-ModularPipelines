@@ -41,7 +41,7 @@ import javax.swing.JOptionPane;
         tool = true,        
         autoinstances = @AutoInstance, 
         comment = "Convert an existing Conditional Corpus Controller to a Parametrized Corpus Controller", 
-        helpURL = "TBD")
+        helpURL = "https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Parametrized-Corpus-Controller")
 public class ControllerConverter extends ResourceHelper {
 
   MakeParametrizedCorpusControllerAction action;
@@ -82,10 +82,10 @@ public class ControllerConverter extends ResourceHelper {
               "Error: could not find our own ParametrizedCorpusControllerClass!\n" , "GATE", JOptionPane.ERROR_MESSAGE);          
         } else {
           NewResourceDialog nrd = new NewResourceDialog(MainFrame.getInstance(), "Resource parameters", true);
-          boolean ok = nrd.show(rd,"SOME TEXT");
+          boolean ok = nrd.show(rd,"Convert to a Parametrized Corpus Controller");
           if(ok) {
             parms = nrd.getSelectedParameters();
-          
+            String newName = nrd.getResourceName();
             ParametrizedCorpusController newController =
               (ParametrizedCorpusController)Factory
                 .createResource(resourceClass,parms);
@@ -102,6 +102,9 @@ public class ControllerConverter extends ResourceHelper {
             List<RunningStrategy> emptyStrats = Collections.emptyList();
             existingController.setRunningStrategies(emptyStrats);
             Factory.deleteResource(existingController);
+            if(newName != null && !newName.isEmpty()) {
+              newController.setName(newName);
+            }
           }
         }
       } catch(Exception ex) {
