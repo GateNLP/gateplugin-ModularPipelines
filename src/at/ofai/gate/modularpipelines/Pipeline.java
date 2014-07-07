@@ -284,9 +284,11 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     FeatureMap features = Factory.duplicate(this.getFeatures(), ctx);
     
     Controller c = (Controller)Factory.duplicate(this.controller, ctx);
-    params.put("controller", c);
-
-    return Factory.createResource(this.getClass().getName(), params, features, this.getName());
+    Pipeline resource = 
+            (Pipeline)Factory.createResource(
+              this.getClass().getName(), params, features, this.getName());
+    resource.controller = c;
+    return resource;
   }
   @Override
   public void controllerExecutionStarted(Controller c)
