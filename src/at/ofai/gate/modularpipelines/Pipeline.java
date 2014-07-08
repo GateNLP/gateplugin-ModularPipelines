@@ -22,6 +22,7 @@ import gate.creole.ResourceInstantiationException;
 import gate.creole.SerialAnalyserController;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
+import gate.creole.metadata.HiddenCreoleParameter;
 import gate.creole.metadata.Optional;
 import gate.creole.metadata.RunTime;
 import gate.persist.PersistenceException;
@@ -67,6 +68,17 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   }
   protected URL pipelineFileURL = null;
   
+  @CreoleParameter(comment="Used internally to indicate custom duplication")
+  @HiddenCreoleParameter
+  public void setIsCustomDuplicated(Boolean flag) {
+    isCustomDuplicated = flag;
+  }
+  public Boolean getIsCustomDuplicated() {
+    return isCustomDuplicated;
+  }
+  protected boolean isCustomDuplicated = false;
+  
+  
   // the parameter overwrites will be done before the "enclosed" pipeline is run and will
   // be undone afterwards (the old values are saved). This can only affect runtime parameters!
   // TODO: what happens when somebody tries to change an init parm that way?
@@ -80,8 +92,10 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     return pipelineParameters;
   }
   protected FeatureMap pipelineParameters;
-      
+  
   protected Controller controller;
+  
+  
   protected static final Logger log = Logger
           .getLogger(Pipeline.class);
   
@@ -95,9 +109,15 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       // TODO: not sure how the controller can ever be non-null in init()
       // therefore, we add some debugging code here ...
       if(controller == null) {
-        initialise_pipeline();
+        if(!getIsCustomDuplicated()) {
+          log.debug("Pipeline.init(): No controller, initializing pipeline from URL "+getPipelineFileURL());
+          initialise_pipeline();
+        } else {
+          log.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
+        }
       } else {
-        System.out.println("ModularPipelines DEBUG: controller is not null in init(): "+controller.getName());
+        //System.err.println("ModularPipelines DEBUG: controller is not null in init(): "+controller.getName());
+        throw new ResourceInstantiationException("Pipeline.init(): controller is not null");
       }
     } catch (Exception ex) {
       throw new ResourceInstantiationException(
@@ -266,6 +286,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   
   @Override
   public void cleanup() {
+    log.debug("Pipeline.cleanup(): Deleting controller"+controller.getName());
     Factory.deleteResource(controller);
   }
   
@@ -279,14 +300,25 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   @Override
   public Resource duplicate(DuplicationContext ctx)
       throws ResourceInstantiationException {
+    log.debug("Pipeline.duplicate(): attempting to duplicate PiplinePR "+getPipelineFileURL());
     FeatureMap params = Factory.duplicate(getInitParameterValues(), ctx);
+    // setting this hidden parameter will tell the init function not to 
+    // load the controller even though the controller field will be null. 
+    params.put("isCustomDuplicated", true); 
     params.putAll(Factory.duplicate(getRuntimeParameterValues(), ctx));
     FeatureMap features = Factory.duplicate(this.getFeatures(), ctx);
-    
+    // instead of letting the duplicate load the controller again, we 
+    // create our own duplicated instance of the controller here ....
+    log.debug("Pipeline.duplicate(): duplicating the controller for "+getPipelineFileURL());
     Controller c = (Controller)Factory.duplicate(this.controller, ctx);
+    // ... create a duplicate of the PR but with no controller loaded
+    log.debug("Pipeline.duplicate(): creating a copy of the PR for "+getPipelineFileURL());
     Pipeline resource = 
             (Pipeline)Factory.createResource(
               this.getClass().getName(), params, features, this.getName());
+    // ... and set the controller in the duplicate to the duplicated controller
+    // we just created
+    log.debug("Pipeline.duplicate(): setting the controller of the duplicate for "+getPipelineFileURL());
     resource.controller = c;
     return resource;
   }
