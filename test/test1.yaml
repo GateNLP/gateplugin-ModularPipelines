@@ -24,3 +24,13 @@
   prname: show1
   name: scriptParams
   value: "key1=valueforgroovyscript"
+- set: prinit
+  controller: ParmPipelineMain
+  prname: tokeniser
+  name: encoding
+  value: ISO-8859-1
+- set: prinit
+  controller: Sub01
+  prname: groovy
+  name: encoding
+  value: ISO-8859-2

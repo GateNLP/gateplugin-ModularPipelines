@@ -48,7 +48,7 @@ public class Utils {
         }
         // convert the properties to features
         configData.docFeatures = gate.Factory.newFeatureMap();
-        configData.prParms = new HashMap<String, Map<String, Object>>();
+        configData.prRuntimeParms = new HashMap<String, Map<String, Object>>();
 
         // check all the keys in the property file and see if they match the
         // name pattern for one of the things we already support
@@ -79,12 +79,12 @@ public class Utils {
               throw new GateRuntimeException("No property specifying controller name (.controller) for pr parameter setting " + key);
             }
             String prId = prContr + "\t" + prName;
-            Map<String, Object> prparm = configData.prParms.get(prId);
+            Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
             if (prparm == null) {
               prparm = new HashMap<String, Object>();
             }
             prparm.put(prParm, prValue);
-            configData.prParms.put(prId, prparm);
+            configData.prRuntimeParms.put(prId, prparm);
           } else if (key.startsWith("propset")) {
             System.getProperties().put(key.substring("propset".length()), properties.getProperty(key));
           } else { // startswith prparm
@@ -94,7 +94,8 @@ public class Utils {
       } else if (configFile.toString().endsWith(".yaml")) {
         Yaml yaml = new Yaml();
         configData.docFeatures = gate.Factory.newFeatureMap();
-        configData.prParms = new HashMap<String, Map<String, Object>>();
+        configData.prRuntimeParms = new HashMap<String, Map<String, Object>>();
+        configData.prInitParms = new HashMap<String, Map<String, Object>>();
         FileInputStream is;
         try {
           is = new FileInputStream(configFile);
@@ -125,12 +126,27 @@ public class Utils {
                   throw new GateRuntimeException("config setting prparm: controller, prname, or name not given: "+config);
                 }
                 String prId = controller + "\t" + prname;
-                Map<String, Object> prparm = configData.prParms.get(prId);
+                Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
                 if (prparm == null) {
                   prparm = new HashMap<String, Object>();
                 }
                 prparm.put(name, value);
-                configData.prParms.put(prId, prparm);
+                configData.prRuntimeParms.put(prId, prparm);
+              } else if (what.equals("prinit")) {
+                String controller = (String) config.get("controller");
+                String prname = (String) config.get("prname");
+                String name = (String) config.get("name");
+                Object value = config.get("value");
+                if (controller == null || prname == null || name == null) {
+                  throw new GateRuntimeException("config setting prinit: controller, prname, or name not given: "+config);
+                }
+                String prId = controller + "\t" + prname;
+                Map<String, Object> prparm = configData.prInitParms.get(prId);
+                if (prparm == null) {
+                  prparm = new HashMap<String, Object>();
+                }
+                prparm.put(name, value);
+                configData.prInitParms.put(prId, prparm);
               } else if (what.equals("prrun")) {
                 // we manage the run setting by using the fake PR parameter "$$RUNFLAG$$"
                 String controller = (String) config.get("controller");
@@ -144,12 +160,12 @@ public class Utils {
                   throw new GateRuntimeException("config setting value for prrun is not true or false: "+config);
                 }
                 String prId = controller + "\t" + prname;
-                Map<String, Object> prparm = configData.prParms.get(prId);
+                Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
                 if (prparm == null) {
                   prparm = new HashMap<String, Object>();
                 }
                 prparm.put(name, value);
-                configData.prParms.put(prId, prparm);
+                configData.prRuntimeParms.put(prId, prparm);
               } else if (what.equals("docfeature")) {
                 String name = (String) config.get("name");
                 Object value = config.get("value");
@@ -186,7 +202,7 @@ public class Utils {
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
     //System.out.println("Setting controller parms for " + cntrlr.getName());
-    if (config.prParms != null) {
+    if (config.prRuntimeParms != null) {
       String cName = cntrlr.getName();
       ConditionalController condController = null;
       List<ProcessingResource> prs = null;
@@ -212,7 +228,7 @@ public class Utils {
         i++;
       }
       // set the PR runtime parameters 
-      for (String prId : config.prParms.keySet()) {
+      for (String prId : config.prRuntimeParms.keySet()) {
         //System.out.println("Checking ID: " + prId + " controller is " + cName);
         String[] contrprname = prId.split("\t");
         if (contrprname[0].equals(cName)) {
@@ -221,7 +237,7 @@ public class Utils {
             throw new GateRuntimeException("Cannot set PR parameter, no PR found with id: " + prId);
           }
           ProcessingResource pr = prs.get(id);
-          Map<String, Object> prparm = config.prParms.get(prId);
+          Map<String, Object> prparm = config.prRuntimeParms.get(prId);
           for (String parmName : prparm.keySet()) {
             Object parmValue = prparm.get(parmName);
             //System.out.println("Debug: trying to process PR setting " + parmValue + " for parm " + parmName + " in PR " + prId + " of " + cName);
@@ -244,7 +260,7 @@ public class Utils {
         } // if controller names match
       }
     } else {
-      //System.out.println("prParms is null!");
+      //System.out.println("prRuntimeParms is null!");
     }
   } // method setControllerParms
   

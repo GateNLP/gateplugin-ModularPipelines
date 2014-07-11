@@ -32,6 +32,8 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 public class ParametrizedCorpusController extends ConditionalSerialAnalyserController
   implements ActionsPublisher {
   
+  private static final long serialVersionUID = 5865826533344553897L;  
+  
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",

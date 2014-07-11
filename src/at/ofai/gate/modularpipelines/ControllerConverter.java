@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package at.ofai.gate.modularpipelines;
 
 import gate.CreoleRegister;
@@ -9,8 +6,10 @@ import gate.Factory;
 import gate.FeatureMap;
 import gate.Gate;
 import gate.ProcessingResource;
+import gate.Resource;
 import gate.creole.ConditionalSerialAnalyserController;
 import gate.creole.ResourceData;
+import gate.creole.ResourceInstantiationException;
 import gate.creole.RunningStrategy;
 import gate.creole.metadata.AutoInstance;
 import gate.creole.metadata.CreoleResource;
@@ -18,7 +17,9 @@ import gate.gui.MainFrame;
 import gate.gui.NameBearerHandle;
 import gate.gui.NewResourceDialog;
 import gate.gui.ResourceHelper;
+import gate.persist.PersistenceException;
 import gate.util.Err;
+import gate.util.persistence.PersistenceManager;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,9 @@ import javax.swing.JOptionPane;
  * Provide a right-click menu option for converting a Conditional Corpus 
  * Controller to our Parametrized Corpus Controller.
  * 
+ * Since this tool gets initialized when the plugin is loaded, we also use
+ * it to register the Persistence for the ParametrizedCorpusController
+ * 
  * @author Johann Petrak
  */
 @SuppressWarnings("serial")
@@ -44,6 +48,18 @@ import javax.swing.JOptionPane;
         helpURL = "https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Parametrized-Corpus-Controller")
 public class ControllerConverter extends ResourceHelper {
 
+  @Override
+  public Resource init() throws ResourceInstantiationException {    
+    try {
+      PersistenceManager.registerPersistentEquivalent(
+              at.ofai.gate.modularpipelines.ParametrizedCorpusController.class, 
+              at.ofai.gate.modularpipelines.ParametrizedCorpusControllerPersistence.class);
+    } catch(PersistenceException ex) {
+      throw new ResourceInstantiationException("Could not register persistence",ex);
+    }
+    return this;
+  }
+  
   MakeParametrizedCorpusControllerAction action;
   @Override
   protected List<Action> buildActions(NameBearerHandle nbh) {

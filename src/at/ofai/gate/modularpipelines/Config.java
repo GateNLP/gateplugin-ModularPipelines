@@ -13,5 +13,10 @@ import java.util.Map;
  */
 public class Config {
   FeatureMap docFeatures = null;
-  Map<String,Map<String,Object>> prParms = null;
+  // The prRuntimeParms map has as keys strings of the form "controllerName\tprName"
+  // and maps those to a map that contains as key the parameter name and 
+  // as value the parameter value
+  Map<String,Map<String,Object>> prRuntimeParms = null;
+  // Same, but for init parms
+  Map<String,Map<String,Object>> prInitParms = null;
 }

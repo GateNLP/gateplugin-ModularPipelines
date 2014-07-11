@@ -7,13 +7,10 @@
       <gate.util.persistence.PersistenceManager-URLHolder>
         <urlString>$gatehome$plugins/Groovy/</urlString>
       </gate.util.persistence.PersistenceManager-URLHolder>
-      <gate.util.persistence.PersistenceManager-URLHolder>
-        <urlString>$relpath$../../gateplugin-modularpipelines/</urlString>
-      </gate.util.persistence.PersistenceManager-URLHolder>
     </localList>
     <collectionType>java.util.ArrayList</collectionType>
   </urlList>
-  <application class="gate.util.persistence.ConditionalSerialAnalyserControllerPersistence">
+  <application class="at.ofai.gate.modularpipelines.ParametrizedCorpusControllerPersistence">
     <strategiesList class="gate.util.persistence.CollectionPersistence">
       <localList>
         <gate.util.persistence.AnalyserRunningStrategyPersistence>
@@ -78,11 +75,18 @@
       </localList>
       <collectionType>java.util.ArrayList</collectionType>
     </prList>
-    <resourceType>gate.creole.ConditionalSerialAnalyserController</resourceType>
+    <resourceType>at.ofai.gate.modularpipelines.ParametrizedCorpusController</resourceType>
     <resourceName>Sub01</resourceName>
     <initParams class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>
-      <localMap/>
+      <localMap>
+        <entry>
+          <string>configFileUrl</string>
+          <gate.util.persistence.PersistenceManager-URLHolder>
+            <urlString>$relpath$test1.yaml</urlString>
+          </gate.util.persistence.PersistenceManager-URLHolder>
+        </entry>
+      </localMap>
     </initParams>
     <features class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>
