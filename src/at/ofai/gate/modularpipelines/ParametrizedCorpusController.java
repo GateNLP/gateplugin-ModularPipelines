@@ -128,7 +128,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
             @Override
             public void run() {
               CreoleRegister reg = Gate.getCreoleRegister();
-              String resourceClass = "at.ofai.gate.modularpipelines.FakeResource";
+              String resourceClass = "at.ofai.gate.modularpipelines.ParametrizedCorpusController";
               ResourceData rd = reg.get(resourceClass);
               if(rd == null) {
                 JOptionPane.showMessageDialog(MainFrame.getInstance(),
