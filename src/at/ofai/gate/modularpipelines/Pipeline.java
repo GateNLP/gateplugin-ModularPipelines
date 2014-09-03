@@ -6,6 +6,7 @@
 
 package at.ofai.gate.modularpipelines;
 
+import static at.ofai.gate.modularpipelines.ParametrizedCorpusController.logger;
 import gate.Controller;
 import gate.CorpusController;
 import gate.Factory;
@@ -116,7 +117,6 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
           logger.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
         }
       } else {
-        //System.err.println("ModularPipelines DEBUG: controller is not null in init(): "+controller.getName());
         throw new ResourceInstantiationException("Pipeline.init(): controller is not null");
       }
     } catch (Exception ex) {
@@ -153,6 +153,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     // document while the corpus is ignored).
     if(oldConfigFileUrl != configFileUrl) {
       config = Utils.readConfigFile(configFileUrl);
+      logger.debug("Config loaded for "+this.getName()+" config is "+config);
       oldConfigFileUrl = configFileUrl;
     }
     
@@ -254,8 +255,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
             try {
               pr.setParameterValue(parmname, savedParms.get(key));
             } catch (ResourceInstantiationException e) {
-              System.err.println("Could not restore value for "+key);
-              e.printStackTrace(System.err);
+              logger.error("Could not restore value for "+key,e);
             }
           }
         }
