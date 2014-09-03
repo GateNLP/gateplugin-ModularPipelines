@@ -28,6 +28,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SHORT_DESCRIPTION;
 import javax.swing.JOptionPane;
+import org.apache.log4j.Logger;
 
 // NOTE: document how and when this applies the config settings!
 // = java properties are set when the config file is read, but are 
@@ -68,6 +69,10 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   protected URL configFileUrl = null;
   Config config;
 
+  protected static final Logger logger = Logger
+          .getLogger(ParametrizedCorpusController.class);
+  
+  
   @Override
   public Resource init() {
     config = Utils.readConfigFile(getConfigFileUrl());
@@ -84,7 +89,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     Utils.setControllerParms(this, config);
     // if we do have a document and we do have document features to set,
     // do it now
-    if(document != null && config.docFeatures != null) {
+    if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
       document.getFeatures().putAll(config.docFeatures);
     }    
     super.execute();
@@ -110,9 +115,9 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
         public void actionPerformed(ActionEvent evt) {
           if (getConfigFileUrl() != null) {
             config = Utils.readConfigFile(getConfigFileUrl());
-            System.out.println("Reloaded config file " + getConfigFileUrl());
+            logger.info("Reloaded config file " + getConfigFileUrl());
           } else {
-            System.out.println("Nothing re-loaded, not config file set");
+            logger.info("Nothing re-loaded, not config file set");
           }
         }
       });
@@ -155,16 +160,16 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
                 newUrl = new URL((String)parms.get("configFileUrl"));
               }
             } catch (MalformedURLException ex) {
-              ex.printStackTrace(System.err);
+              logger.error("Got an exception",ex);
               return;
             }
             setConfigFileUrl(newUrl);
             if (newUrl != null) {
               config = Utils.readConfigFile(getConfigFileUrl());
-              System.out.println("Reloaded config file " + getConfigFileUrl());
+              logger.info("Reloaded config file " + getConfigFileUrl());
             } else {
               config = new Config();
-              System.out.println("Cleared config data");
+              logger.info("Cleared config data");
             }
           }
         }

@@ -21,16 +21,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 /**
  *
- * @author johann
+ * @author Johann Petrak
  */
 public class Utils {
+  
+  protected static final Logger logger = Logger
+          .getLogger(Utils.class);
+  
   protected static Config readConfigFile(URL configFileUrl) {
     // first read the document features property file
-    // System.out.println("DEBUG: trying to read config from "+configFileUrl);
+    logger.debug("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
     File configFile = null;
     String propertyValue = System.getProperty("at.ofai.gate.modularpipelines.configFile");
@@ -117,7 +122,7 @@ public class Utils {
               Map<String, Object> config = (Map<String, Object>) configObj;
               String what = (String) config.get("set");
               if (what == null) {
-                System.err.println("No 'set' key in setting, ignored: " + config);
+                logger.info("No 'set' key in setting, ignored: " + config);
               } else if (what.equals("prparm")) {
                 String controller = (String) config.get("controller");
                 String prname = (String) config.get("prname");
@@ -187,7 +192,7 @@ public class Utils {
                 System.getProperties().put(name, valueString);
               }
             } else {
-              System.err.println("Config element not a map, ignoring: " + configObj);
+              logger.info("Config element not a map, ignoring: " + configObj);
             }
           }
         } else {
@@ -202,7 +207,7 @@ public class Utils {
   
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
-    //System.out.println("Setting controller parms for " + cntrlr.getName());
+    logger.debug("Setting controller parms for " + cntrlr.getName());
     // we store both the actual runtime parameters and the run modes in 
     // config.prRuntimeParms so this is != null if either or both are set
     // in the config.
@@ -212,12 +217,9 @@ public class Utils {
       List<ProcessingResource> prs = null;
       List<RunningStrategy> strategies = null;
       if (cntrlr instanceof ConditionalController) {
-        //System.out.println("DEBUG: it is a conditional controller!");
         condController = (ConditionalController) cntrlr;
         strategies = condController.getRunningStrategies();
-      } else {
-        //System.out.println("NOT a conditional controller");
-      }
+      } 
       prs = (List<ProcessingResource>) cntrlr.getPRs();
       // create a map that maps names to prs for this controller
       Map<String, Integer> prNums = new HashMap<String, Integer>();
@@ -227,13 +229,11 @@ public class Utils {
         if (prNums.containsKey(id)) {
           throw new GateRuntimeException("Cannot set PR parameters the PR name appears twice: " + id);
         }
-        // System.out.println("Adding PR id: "+id);
         prNums.put(id, i);
         i++;
       }
       // set the PR runtime parameters 
       for (String prId : config.prRuntimeParms.keySet()) {
-        //System.out.println("Checking ID: " + prId + " controller is " + cName);
         String[] contrprname = prId.split("\t");
         if (contrprname[0].equals(cName)) {
           Integer id = prNums.get(prId);
@@ -244,13 +244,13 @@ public class Utils {
           Map<String, Object> prparm = config.prRuntimeParms.get(prId);
           for (String parmName : prparm.keySet()) {
             Object parmValue = prparm.get(parmName);
-            //System.out.println("Debug: trying to process PR setting " + parmValue + " for parm " + parmName + " in PR " + prId + " of " + cName);
+            logger.debug("Debug: trying to process PR setting " + parmValue + " for parm " + parmName + " in PR " + prId + " of " + cName);
             if (parmName.equals("$$RUNFLAG$$")) {
-              //System.out.println("Trying to set a runflag");
+              logger.debug("Trying to set a runflag");
               if (condController != null) {
                 boolean flag = (Boolean) parmValue;
                 AnalyserRunningStrategy str = (AnalyserRunningStrategy) strategies.get(id);
-                //System.out.println("Setting the run mode: " + flag);
+                logger.debug("Setting the run mode: " + flag);
                 str.setRunMode(flag ? AnalyserRunningStrategy.RUN_ALWAYS : AnalyserRunningStrategy.RUN_NEVER);
               }
             } else {
@@ -264,7 +264,7 @@ public class Utils {
         } // if controller names match
       }
     } else {
-      //System.out.println("prRuntimeParms is null!");
+      logger.debug("prRuntimeParms is null!");
     }
   } // method setControllerParms
   

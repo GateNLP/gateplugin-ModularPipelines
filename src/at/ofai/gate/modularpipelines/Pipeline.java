@@ -96,7 +96,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   protected Controller controller;
   
   
-  protected static final Logger log = Logger
+  protected static final Logger logger = Logger
           .getLogger(Pipeline.class);
   
   
@@ -110,10 +110,10 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       // therefore, we add some debugging code here ...
       if(controller == null) {
         if(!getIsCustomDuplicated()) {
-          log.debug("Pipeline.init(): No controller, initializing pipeline from URL "+getPipelineFileURL());
+          logger.debug("Pipeline.init(): No controller, initializing pipeline from URL "+getPipelineFileURL());
           initialise_pipeline();
         } else {
-          log.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
+          logger.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
         }
       } else {
         //System.err.println("ModularPipelines DEBUG: controller is not null in init(): "+controller.getName());
@@ -163,7 +163,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       ((LanguageAnalyser)controller).setDocument(document);      
     }
     try {
-      log.debug(("Running pipeline "+controller.getName()+" on "+
+      logger.debug(("Running pipeline "+controller.getName()+" on "+
               (document != null ? document.getName() : "(no document)" )));
 
       HashMap<String,Object> savedParms = new HashMap<String,Object>();
@@ -191,7 +191,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
           // try to find the PR
           Resource pr = name2pr.get(prparm[0]);
           if(pr == null) {
-            System.err.println("Could not set parameter "+parmname+" for PR "+prname);
+            logger.info("Could not set parameter "+parmname+" for PR "+prname);
           } else {
             // get the old parameter value
             boolean parmSaved = false;
@@ -200,8 +200,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
               parmSaved = true;
             } catch (ResourceInstantiationException e) {
               // TODO Auto-generated catch block
-              System.err.println("Parameter not set, got an exception trying to save the parameter value for "+key);
-              e.printStackTrace(System.err);
+              logger.error("Parameter not set, got an exception trying to save the parameter value for "+key,e);
             }
             // if we could save the value, try to set the new value
             if(parmSaved) {
@@ -213,11 +212,10 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
                   string = gate.Utils.replaceVariablesInString(string, corpus.getFeatures(), controller.getFeatures(),this.getFeatures());
                   value = string;
                 }
-                //System.err.println("Trying to set parameter "+parmname+" to value "+value+" for "+pr.getName());
+                logger.debug("Trying to set parameter "+parmname+" to value "+value+" for "+pr.getName());
                 pr.setParameterValue(parmname, value);
               } catch (ResourceInstantiationException e) {
-                System.err.println("Got an exception trying to set the new value for "+key);
-                e.printStackTrace(System.err);
+                logger.error("Got an exception trying to set the new value for "+key,e);
               }
             }
           }
@@ -225,7 +223,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
         } // for
       } // if we have parameter overrides
       // now override any parameters from configured from the properties file
-      //System.out.println("Trying to set controller parms for "+controller.getName());
+      logger.debug("Trying to set controller parms for "+controller.getName());
       // TODO: we want to avoid setting stuff twice if the pipeline which we
       // run is parametrized and with the same config file. however, just 
       // comparing the URIs will not always work correctly if we have two
@@ -233,12 +231,12 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       // or similar. We should use a different method to compare the configs
       // (e.g. hash-code of content)
       if(controller instanceof ParametrizedCorpusController && 
-         isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
-        //System.out.println("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
+        isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
+        logger.debug("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
       } else {
         setControllerParms(controller);
         // finally set the document features
-        if(document != null && config.docFeatures != null) {
+        if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
           document.getFeatures().putAll(config.docFeatures);
         }
       }
@@ -286,21 +284,21 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   
   @Override
   public void cleanup() {
-    log.debug("Pipeline.cleanup(): Deleting controller"+controller.getName());
+    logger.debug("Pipeline.cleanup(): Deleting controller"+controller.getName());
     Factory.deleteResource(controller);
   }
   
   
   protected void initialise_pipeline() throws PersistenceException,
     IOException, ResourceInstantiationException {
-    log.debug("(Re-)initialising pipeline "+pipelineFileURL);
+    logger.debug("(Re-)initialising pipeline "+pipelineFileURL);
     controller = (Controller)PersistenceManager.loadObjectFromUrl(pipelineFileURL);
   }
   
   @Override
   public Resource duplicate(DuplicationContext ctx)
       throws ResourceInstantiationException {
-    log.debug("Pipeline.duplicate(): attempting to duplicate PiplinePR "+getPipelineFileURL());
+    logger.debug("Pipeline.duplicate(): attempting to duplicate PiplinePR "+getPipelineFileURL());
     FeatureMap params = Factory.duplicate(getInitParameterValues(), ctx);
     // setting this hidden parameter will tell the init function not to 
     // load the controller even though the controller field will be null. 
@@ -309,16 +307,16 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     FeatureMap features = Factory.duplicate(this.getFeatures(), ctx);
     // instead of letting the duplicate load the controller again, we 
     // create our own duplicated instance of the controller here ....
-    log.debug("Pipeline.duplicate(): duplicating the controller for "+getPipelineFileURL());
+    logger.debug("Pipeline.duplicate(): duplicating the controller for "+getPipelineFileURL());
     Controller c = (Controller)Factory.duplicate(this.controller, ctx);
     // ... create a duplicate of the PR but with no controller loaded
-    log.debug("Pipeline.duplicate(): creating a copy of the PR for "+getPipelineFileURL());
+    logger.debug("Pipeline.duplicate(): creating a copy of the PR for "+getPipelineFileURL());
     Pipeline resource = 
             (Pipeline)Factory.createResource(
               this.getClass().getName(), params, features, this.getName());
     // ... and set the controller in the duplicate to the duplicated controller
     // we just created
-    log.debug("Pipeline.duplicate(): setting the controller of the duplicate for "+getPipelineFileURL());
+    logger.debug("Pipeline.duplicate(): setting the controller of the duplicate for "+getPipelineFileURL());
     resource.controller = c;
     return resource;
   }
