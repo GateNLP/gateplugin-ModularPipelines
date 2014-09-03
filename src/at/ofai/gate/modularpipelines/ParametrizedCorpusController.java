@@ -76,6 +76,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   @Override
   public Resource init() {
     config = Utils.readConfigFile(getConfigFileUrl());
+    logger.debug("Config loaded for "+this.getName()+" config is "+config);
     return this;
   }
 
@@ -90,8 +91,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // if we do have a document and we do have document features to set,
     // do it now
     if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
+      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": setting document features "+config.docFeatures);
       document.getFeatures().putAll(config.docFeatures);
-    }    
+    } else {
+      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": NOT setting document features");
+    }
     super.execute();
   }
   private List<Action> actions;
