@@ -5,9 +5,11 @@
 package at.ofai.gate.modularpipelines;
 
 import gate.CreoleRegister;
+import gate.Document;
 import gate.FeatureMap;
 import gate.Gate;
 import gate.GateConstants;
+import gate.LanguageAnalyser;
 import gate.Resource;
 import gate.creole.ConditionalSerialAnalyserController;
 import gate.creole.ExecutionException;
@@ -85,21 +87,41 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     init();
   }
 
+  protected boolean documentFeaturesSet = false;
+  
   @Override
   public void execute() throws ExecutionException {
+    documentFeaturesSet = false;
     Utils.setControllerParms(this, config);
+    // if the controller got invoked on a per-document basis, we can set the
+    // document features here (in that case document will be non-null) and
+    // set the flag to true ...
+    if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
+      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/execute: setting document features "+config.docFeatures);
+      document.getFeatures().putAll(config.docFeatures);
+      documentFeaturesSet = true;
+    } else {
+      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"execute: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
+    }
     super.execute();
   }
   
   @Override
   protected void runComponent(int componentIndex) throws ExecutionException{
-    // if we do have a document and we do have document features to set,
-    // do it now
-    if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
-      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": setting document features "+config.docFeatures);
-      document.getFeatures().putAll(config.docFeatures);
-    } else {
-      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
+    // if the controller is run on a corpus, document will always be null
+    // this method will get invoked for each component that is run but we 
+    // simply want to set the document features for whenever the first component
+    // is run. So we check the flag, then get the document from the component
+    // and set the features
+    if(!documentFeaturesSet) {
+      documentFeaturesSet = true; 
+      Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();
+      if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
+        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: setting document features "+config.docFeatures);
+        document.getFeatures().putAll(config.docFeatures);
+      } else {
+        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
+      }
     }
     super.runComponent(componentIndex);    
   }
