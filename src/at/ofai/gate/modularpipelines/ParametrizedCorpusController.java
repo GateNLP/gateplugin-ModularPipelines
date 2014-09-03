@@ -88,6 +88,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   @Override
   public void execute() throws ExecutionException {
     Utils.setControllerParms(this, config);
+    super.execute();
+  }
+  
+  @Override
+  protected void runComponent(int componentIndex) throws ExecutionException{
     // if we do have a document and we do have document features to set,
     // do it now
     if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
@@ -96,8 +101,10 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     } else {
       logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
     }
-    super.execute();
+    super.runComponent(componentIndex);    
   }
+  
+  
   private List<Action> actions;
 
   public List<Action> getActions() {
