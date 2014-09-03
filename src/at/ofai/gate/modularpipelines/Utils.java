@@ -203,6 +203,9 @@ public class Utils {
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
     //System.out.println("Setting controller parms for " + cntrlr.getName());
+    // we store both the actual runtime parameters and the run modes in 
+    // config.prRuntimeParms so this is != null if either or both are set
+    // in the config.
     if (config.prRuntimeParms != null) {
       String cName = cntrlr.getName();
       ConditionalController condController = null;

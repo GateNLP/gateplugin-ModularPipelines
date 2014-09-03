@@ -237,10 +237,10 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
         //System.out.println("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
       } else {
         setControllerParms(controller);
-      }
-      // finally set the document features
-      if(document != null && config.docFeatures != null) {
-        document.getFeatures().putAll(config.docFeatures);
+        // finally set the document features
+        if(document != null && config.docFeatures != null) {
+          document.getFeatures().putAll(config.docFeatures);
+        }
       }
       controller.execute();
       // TODO: maybe: restore the parameters changed in setControllerParms?

@@ -24,12 +24,23 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SHORT_DESCRIPTION;
 import javax.swing.JOptionPane;
+
+// NOTE: document how and when this applies the config settings!
+// = java properties are set when the config file is read, but are 
+//   NOT unset or restored (at the moment) when the config file is replaced
+//   or cleared! Java properties only cen be set to a new value when (re)loading
+//   a config file that explicitly has a setting for them
+// = runtime parameters, run modes and document features are set whenever
+//   execute() is done
+// Interaction with Pipeline: runtime parameters and run modes adn document features
+// are not set by the Pipeline PR if this Controller is used as a containing controller
+// and the config file URL is identical. Otherwise the Pipeline PR sets all of those
+// in addition.
+
 
 /**
  *
@@ -71,6 +82,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   @Override
   public void execute() throws ExecutionException {
     Utils.setControllerParms(this, config);
+    // if we do have a document and we do have document features to set,
+    // do it now
+    if(document != null && config.docFeatures != null) {
+      document.getFeatures().putAll(config.docFeatures);
+    }    
     super.execute();
   }
   private List<Action> actions;
