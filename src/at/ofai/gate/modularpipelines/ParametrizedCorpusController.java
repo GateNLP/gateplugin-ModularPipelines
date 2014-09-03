@@ -117,11 +117,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     if(!documentFeaturesSet) {
       documentFeaturesSet = true; 
       Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();
-      if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
+      if(doc != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: setting document features "+config.docFeatures);
-        document.getFeatures().putAll(config.docFeatures);
+        doc.getFeatures().putAll(config.docFeatures);
       } else {
-        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
+        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+doc+" config.docFeatures="+config.docFeatures);
       }
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
