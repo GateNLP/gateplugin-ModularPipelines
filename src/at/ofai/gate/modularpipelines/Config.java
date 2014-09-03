@@ -19,4 +19,45 @@ public class Config {
   Map<String,Map<String,Object>> prRuntimeParms = null;
   // Same, but for init parms
   Map<String,Map<String,Object>> prInitParms = null;
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("docFeatures: ");
+    if(docFeatures != null) {
+      sb.append(docFeatures.toString());
+    } else {
+      sb.append("null");
+    }
+    sb.append("runtimeParms: ");
+    if(prRuntimeParms != null) {
+    for(String key : prRuntimeParms.keySet()) {
+      Map<String,Object> val = prRuntimeParms.get(key);
+      sb.append(key);
+      sb.append("=");
+      for(String k : val.keySet()) {
+        sb.append(k);
+        sb.append(":");
+        sb.append(val.get(k).toString());
+      }
+    }
+    } else {
+      sb.append("null");
+    }
+    sb.append("initParms: ");
+    if(prInitParms != null) {
+    for(String key : prRuntimeParms.keySet()) {
+      Map<String,Object> val = prInitParms.get(key);
+      sb.append(key);
+      sb.append("=");
+      for(String k : val.keySet()) {
+        sb.append(k);
+        sb.append(":");
+        sb.append(val.get(k).toString());
+      }
+    }
+    } else {
+      sb.append("null");
+    }
+    return sb.toString();
+  }
 }
