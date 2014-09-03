@@ -94,7 +94,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": setting document features "+config.docFeatures);
       document.getFeatures().putAll(config.docFeatures);
     } else {
-      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": NOT setting document features");
+      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+": NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
     }
     super.execute();
   }
