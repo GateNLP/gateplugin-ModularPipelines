@@ -27,8 +27,8 @@ public class Config {
       sb.append(docFeatures.toString());
     } else {
       sb.append("null");
-    }
-    sb.append("runtimeParms: ");
+    }    
+    sb.append("; runtimeParms: ");
     if(prRuntimeParms != null) {
     for(String key : prRuntimeParms.keySet()) {
       Map<String,Object> val = prRuntimeParms.get(key);
@@ -38,12 +38,13 @@ public class Config {
         sb.append(k);
         sb.append(":");
         sb.append(val.get(k).toString());
+        sb.append(" ");
       }
     }
     } else {
       sb.append("null");
     }
-    sb.append("initParms: ");
+    sb.append("; initParms: ");
     if(prInitParms != null) {
     for(String key : prRuntimeParms.keySet()) {
       Map<String,Object> val = prInitParms.get(key);
@@ -54,6 +55,7 @@ public class Config {
         sb.append(k);
         sb.append(":");
         sb.append(val.get(k).toString());
+        sb.append(" ");
       }
       } else {
         sb.append("null");
