@@ -113,6 +113,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // simply want to set the document features for whenever the first component
     // is run. So we check the flag, then get the document from the component
     // and set the features
+    logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent "+componentIndex);
     if(!documentFeaturesSet) {
       documentFeaturesSet = true; 
       Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();
@@ -122,6 +123,8 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       } else {
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
       }
+    } else {
+      logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
     }
     super.runComponent(componentIndex);    
   }
