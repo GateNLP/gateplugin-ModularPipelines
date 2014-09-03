@@ -49,10 +49,14 @@ public class Config {
       Map<String,Object> val = prInitParms.get(key);
       sb.append(key);
       sb.append("=");
+      if(val != null) {
       for(String k : val.keySet()) {
         sb.append(k);
         sb.append(":");
         sb.append(val.get(k).toString());
+      }
+      } else {
+        sb.append("null");
       }
     }
     } else {
