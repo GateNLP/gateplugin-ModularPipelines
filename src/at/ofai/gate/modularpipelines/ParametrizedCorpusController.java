@@ -98,7 +98,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // set the flag to true ...
     if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
       logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/execute: setting document features "+config.docFeatures);
-      document.getFeatures().putAll(config.docFeatures);
+      Utils.setDocumentFeatures(document.getFeatures(), config);
       documentFeaturesSet = true;
     } else {
       logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"execute: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
@@ -119,13 +119,21 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();
       if(doc != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: setting document features "+config.docFeatures);
-        doc.getFeatures().putAll(config.docFeatures);
+        Utils.setDocumentFeatures(doc.getFeatures(), config);
       } else {
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+doc+" config.docFeatures="+config.docFeatures);
       }
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
     }
+    // TODO: here we should also deal with any special document features
+    // which should be used to set other things in the pipeline.
+    // This would make it possible for the webservice to influence the 
+    // config settings on a doc by doc basis easily.
+    // The way to do this should probably be:
+    // = process all features which start with a certain prefix
+    // = update the config datastructure based on these values. Not sure yet
+    //   how, probably by structured names??
     super.runComponent(componentIndex);    
   }
   

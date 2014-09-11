@@ -40,7 +40,8 @@ public class SetParametersAndFeatures extends SetParmsAndFeatsFromConfigBase
       throw new GateRuntimeException("Something is very wrong: controller is null!");
     }
     if(getDocument() != null && config.docFeatures != null) {
-      getDocument().getFeatures().putAll(config.docFeatures);
+      //getDocument().getFeatures().putAll(config.docFeatures);
+      Utils.setDocumentFeatures(getDocument().getFeatures(), config);
     }
     // TODO: maybe: restore parameters?
   }

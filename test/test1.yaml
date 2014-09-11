@@ -13,6 +13,10 @@
   name: feature2
   value: 25
 - set: docfeature
+  name: test
+  override: false
+  value: testvalue
+- set: docfeature
   name: feature3
   value: {k1: v1, k2: 25}
 - set: prrun

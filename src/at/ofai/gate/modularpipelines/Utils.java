@@ -5,6 +5,7 @@
 package at.ofai.gate.modularpipelines;
 
 import gate.Controller;
+import gate.FeatureMap;
 import gate.ProcessingResource;
 import gate.creole.AnalyserRunningStrategy;
 import gate.creole.ConditionalController;
@@ -52,15 +53,15 @@ public class Utils {
         } catch (IOException ex) {
           throw new GateRuntimeException("Could not read properties file " + configFile, ex);
         }
-        // convert the properties to features
-        configData.docFeatures = gate.Factory.newFeatureMap();
-        configData.prRuntimeParms = new HashMap<String, Map<String, Object>>();
 
         // check all the keys in the property file and see if they match the
         // name pattern for one of the things we already support
         for (String key : properties.stringPropertyNames()) {
           if (key.startsWith("docfeature.")) {
-            configData.docFeatures.put(key.replaceAll("^docfeature\\.", ""), properties.getProperty(key));
+            String featName = key.replaceAll("^docfeature\\.", "");
+            String featValue = properties.getProperty(key);
+            configData.docFeatures.put(featName, featValue);
+            configData.docFeaturesOverridable.put(featName,true); 
           } else if (key.startsWith("prparm.")) {
             String settingId = key.substring("prparm.".length());
             settingId = settingId.replaceAll("\\.[^.]+$", "");
@@ -99,9 +100,6 @@ public class Utils {
         }
       } else if (configFile.toString().endsWith(".yaml")) {
         Yaml yaml = new Yaml();
-        configData.docFeatures = gate.Factory.newFeatureMap();
-        configData.prRuntimeParms = new HashMap<String, Map<String, Object>>();
-        configData.prInitParms = new HashMap<String, Map<String, Object>>();
         FileInputStream is;
         try {
           is = new FileInputStream(configFile);
@@ -178,6 +176,20 @@ public class Utils {
                 if (name == null || value == null) {
                   throw new GateRuntimeException("config setting docfeature: name or value is null: "+config);
                 }
+                Object overrideObj = config.get("override");
+                boolean override = true;  // default is true
+                if(overrideObj != null) {
+                  // if we do have this, it must be convertable to boolean
+                  if(overrideObj instanceof Boolean) {
+                    override = (Boolean)overrideObj;
+                  } else if(overrideObj instanceof String) {
+                    override = Boolean.valueOf((String)overrideObj);
+                  } else {
+                    throw new GateRuntimeException("Cannot convert value to a boolean for docfeature setting "+name+" for override param value: "+overrideObj);
+                  }
+                  //System.out.println("Got a value for override for "+name+": "+overrideObj+" set to "+override);
+                }
+                configData.docFeaturesOverridable.put(name, override);
                 configData.docFeatures.put(name, value);
               } else if (what.equals("propset")) {
                 String name = (String) config.get("name");
@@ -268,6 +280,42 @@ public class Utils {
     }
   } // method setControllerParms
   
-  
+  /**
+   * Set values in the feature map based on the document feature settings of
+   * the config.
+   * 
+   * @param theFeatures
+   * @param config 
+   */
+  protected static void setDocumentFeatures(FeatureMap theFeatures, Config config) {
+    if(config.docFeatures != null) {
+      for(Object keyObj : config.docFeatures.keySet()) {
+        String key = (String)keyObj;
+        // only set it unless we have a flag not to override an existing value
+        // and there is an existing value
+        if(theFeatures.get(key) != null) {
+          // there is a value, make sure we do not have a flag that 
+          // prevents overriding the value
+          // If we do not have any information or if the info is set to true,
+          // override, otherwise (we do have information and it is false) 
+          // do not override.
+          if(config.docFeaturesOverridable == null ||
+             config.docFeaturesOverridable.get(keyObj) == null ||
+             ((Boolean)config.docFeaturesOverridable.get(keyObj))
+            ) {
+            //System.out.println("Setting document feature, there was a value already: "+key+" to "+config.docFeatures.get(keyObj));
+            //System.out.println("overridable was "+config.docFeaturesOverridable);
+            theFeatures.put(key,config.docFeatures.get(keyObj));
+          } else {
+            //System.out.println("NOT setting document feature, there was a value already: "+key+" to "+config.docFeatures.get(keyObj));
+          }
+        } else {
+          // there is no value yet, we can set it
+          //System.out.println("Setting document feature, there was no value yet: "+key+" to "+config.docFeatures.get(keyObj));
+          theFeatures.put(key,config.docFeatures.get(keyObj));
+        }
+      }
+    }
+  }
   
 }

@@ -238,7 +238,8 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
         setControllerParms(controller);
         // finally set the document features
         if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
-          document.getFeatures().putAll(config.docFeatures);
+          //document.getFeatures().putAll(config.docFeatures);
+          Utils.setDocumentFeatures(document.getFeatures(), config);
         }
       }
       controller.execute();
