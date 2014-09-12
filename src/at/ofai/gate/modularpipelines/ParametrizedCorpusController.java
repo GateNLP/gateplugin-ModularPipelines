@@ -63,11 +63,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
           suffixes = "properties;yaml")
   public void setConfigFileUrl(URL fileUrl) {
-    if(config != null && fileUrl == null) {
-      config = null;
-    } else if(config == null && fileUrl != null) {
+    if(config.origUrl != null && fileUrl == null) {
+      config = new Config();
+    } else if(config.origUrl == null && fileUrl != null) {
       config = Utils.readConfigFile(configFileUrl);      
-    } else if(config != null && !config.origUrl.equals(configFileUrl)) {
+    } else if(config.origUrl != null && !config.origUrl.equals(configFileUrl)) {
       config = Utils.readConfigFile(configFileUrl);      
     }
     configFileUrl = fileUrl;
@@ -77,7 +77,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     return configFileUrl;
   }
   protected URL configFileUrl = null;
-  Config config;
+  Config config = new Config();
 
   protected static final Logger logger = Logger
           .getLogger(ParametrizedCorpusController.class);
