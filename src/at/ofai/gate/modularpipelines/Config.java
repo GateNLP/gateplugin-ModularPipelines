@@ -19,6 +19,10 @@ public class Config {
   // This is used to allow for an outer config file to set the config file 
   // of all inner pipelines to itself. 
   URL globalConfigFileUrl = null;
+  // the orig URL is set to the URL that was given originally when this 
+  // config file was read and is used to prevent that the same config file
+  // is read several times.
+  URL origUrl = null;
   FeatureMap docFeatures = gate.Factory.newFeatureMap();
   FeatureMap docFeaturesOverridable = gate.Factory.newFeatureMap();
   // The prRuntimeParms map has as keys strings of the form "controllerName\tprName"
@@ -30,6 +34,8 @@ public class Config {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
+    sb.append("URL="+origUrl);
+    sb.append(" ");
     sb.append("docFeatures: ");
     if(docFeatures != null) {
       sb.append(docFeatures.toString());

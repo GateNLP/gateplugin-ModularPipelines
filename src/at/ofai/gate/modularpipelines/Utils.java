@@ -40,6 +40,7 @@ public class Utils {
     // first read the document features property file
     logger.debug("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
+    configData.origUrl = configFileUrl;
     File configFile = null;
     String propertyValue = System.getProperty("at.ofai.gate.modularpipelines.configFile");
     if (propertyValue != null && !propertyValue.isEmpty()) {
