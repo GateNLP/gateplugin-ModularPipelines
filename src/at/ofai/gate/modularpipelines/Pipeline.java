@@ -6,7 +6,6 @@
 
 package at.ofai.gate.modularpipelines;
 
-import static at.ofai.gate.modularpipelines.ParametrizedCorpusController.logger;
 import gate.Controller;
 import gate.CorpusController;
 import gate.Factory;
@@ -368,5 +367,14 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     }    
   }
   
+  public void setConfig4Pipeline(URL configFileUrl) {
+    if(controller instanceof ParametrizedCorpusController) {
+      ParametrizedCorpusController pcc = (ParametrizedCorpusController)controller;
+      if((pcc.getConfigFileUrl() == null && configFileUrl != null) || 
+          pcc.getConfigFileUrl() != null && !pcc.getConfigFileUrl().equals(configFileUrl)) {
+        pcc.setConfigFileUrl(configFileUrl);
+      }        
+    }
+  }
   
 } // class Pipeline

@@ -10,6 +10,7 @@ import gate.FeatureMap;
 import gate.Gate;
 import gate.GateConstants;
 import gate.LanguageAnalyser;
+import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.ConditionalSerialAnalyserController;
 import gate.creole.ExecutionException;
@@ -126,6 +127,22 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
     }
+    // In addition, if our config specifies that we want to override the 
+    // config file for all embedded pipelines, do that. We can have two 
+    // situations for now: the pipeline is directly embedded, then we can
+    // directly set the parameter, or we have a Pipeline PR, in which case
+    // we need to set the config file of the Pipeline PR AND tell the Pipeline 
+    // PR to override the config of its controller, if necessary.
+    ProcessingResource pr = prList.get(componentIndex);
+    if(pr instanceof ParametrizedCorpusController) {
+      ((ParametrizedCorpusController)pr).setConfigFileUrl(config.globalConfigFileUrl);
+    } else if(pr instanceof SetParametersAndFeatures) {
+      ((SetParametersAndFeatures)pr).setConfigFileUrl(config.globalConfigFileUrl);
+    } else if(pr instanceof Pipeline) {
+      ((Pipeline)pr).setConfigFileUrl(config.globalConfigFileUrl);
+      ((Pipeline)pr).setConfig4Pipeline(config.globalConfigFileUrl);
+    }
+    
     // TODO: here we should also deal with any special document features
     // which should be used to set other things in the pipeline.
     // This would make it possible for the webservice to influence the 

@@ -17,11 +17,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -202,6 +204,21 @@ public class Utils {
                   valueString = value.toString();
                 }
                 System.getProperties().put(name, valueString);
+              } else if (what.toLowerCase().equals("inheritconfig")) {
+                File fullPath;
+                try {
+                  fullPath = configFile.getCanonicalFile();
+                } catch (IOException ex) {
+                  throw new GateRuntimeException("Cannot get canonical pathname for config file "+configFile,ex);
+                }
+                try {
+                  configData.globalConfigFileUrl = fullPath.toURI().toURL();
+                } catch (MalformedURLException ex) {
+                  throw new GateRuntimeException("Cannot create URL of full path for config file "+configFile,ex);
+                }
+                logger.debug("Set the global config file url to "+configData.globalConfigFileUrl);
+              } else {
+                throw new GateRuntimeException("Unknown setting: "+what+" in "+configFile);
               }
             } else {
               logger.info("Config element not a map, ignoring: " + configObj);

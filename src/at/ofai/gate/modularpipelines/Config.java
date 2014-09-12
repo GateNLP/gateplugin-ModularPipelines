@@ -5,6 +5,7 @@
 package at.ofai.gate.modularpipelines;
 
 import gate.FeatureMap;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +14,11 @@ import java.util.Map;
  * @author johann
  */
 public class Config {
+  // If this is non-null it signals that any sub-pipeline of the pipeline
+  // which has this set should have their config file URL set to this too.
+  // This is used to allow for an outer config file to set the config file 
+  // of all inner pipelines to itself. 
+  URL globalConfigFileUrl = null;
   FeatureMap docFeatures = gate.Factory.newFeatureMap();
   FeatureMap docFeaturesOverridable = gate.Factory.newFeatureMap();
   // The prRuntimeParms map has as keys strings of the form "controllerName\tprName"
@@ -66,6 +72,8 @@ public class Config {
     } else {
       sb.append("null");
     }
+    sb.append(" ");
+    sb.append("globalConfigFileUrl="+globalConfigFileUrl);
     return sb.toString();
   }
 }

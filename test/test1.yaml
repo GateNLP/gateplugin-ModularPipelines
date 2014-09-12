@@ -1,5 +1,6 @@
 ## sample yaml config file
 
+- set: inheritconfig
 
 - set: prparm
   controller: Sub01
