@@ -117,21 +117,22 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // directly set the parameter, or we have a Pipeline PR, in which case
     // we need to set the config file of the Pipeline PR AND tell the Pipeline 
     // PR to override the config of its controller, if necessary.
-    for(int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
-      ProcessingResource pr = prList.get(componentIndex);
-      if(pr instanceof ParametrizedCorpusController) {
-        logger.debug("Setting config file in execute for "+pr.getName());
-        ((ParametrizedCorpusController)pr).setConfigFileUrl(config.globalConfigFileUrl);
-      } else if(pr instanceof SetParametersAndFeatures) {
-        logger.debug("Setting config file in execute for "+pr.getName());
-        ((SetParametersAndFeatures)pr).setConfigFileUrl(config.globalConfigFileUrl);
-      } else if(pr instanceof Pipeline) {
-        logger.debug("Setting config file in execute for "+pr.getName());
-        ((Pipeline)pr).setConfigFileUrl(config.globalConfigFileUrl);
-        ((Pipeline)pr).setConfig4Pipeline(config.globalConfigFileUrl);
+    if(config.globalConfigFileUrl != null) {
+      for (int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
+        ProcessingResource pr = prList.get(componentIndex);
+        if (pr instanceof ParametrizedCorpusController) {
+          logger.debug("Setting config file in execute for " + pr.getName());
+          ((ParametrizedCorpusController) pr).setConfigFileUrl(config.globalConfigFileUrl);
+        } else if (pr instanceof SetParametersAndFeatures) {
+          logger.debug("Setting config file in execute for " + pr.getName());
+          ((SetParametersAndFeatures) pr).setConfigFileUrl(config.globalConfigFileUrl);
+        } else if (pr instanceof Pipeline) {
+          logger.info("Setting config file in execute for Pipeline PR " + pr.getName());
+          ((Pipeline) pr).setConfigFileUrl(config.globalConfigFileUrl);
+          ((Pipeline) pr).setConfig4Pipeline(config.globalConfigFileUrl);
+        }
       }
     }
-    
     super.execute();
   }
   

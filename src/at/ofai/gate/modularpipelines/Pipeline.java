@@ -370,10 +370,8 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   public void setConfig4Pipeline(URL configFileUrl) {
     if(controller instanceof ParametrizedCorpusController) {
       ParametrizedCorpusController pcc = (ParametrizedCorpusController)controller;
-      if((pcc.getConfigFileUrl() == null && configFileUrl != null) || 
-          pcc.getConfigFileUrl() != null && !pcc.getConfigFileUrl().equals(configFileUrl)) {
-        pcc.setConfigFileUrl(configFileUrl);
-      }        
+      logger.info("Re-setting the config file for sub pipeline "+pcc.getName());
+      pcc.setConfigFileUrl(configFileUrl);
     }
   }
   
