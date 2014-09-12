@@ -232,8 +232,9 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
       // (e.g. hash-code of content)
       if(controller instanceof ParametrizedCorpusController && 
         isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
-        logger.debug("DEBUG: Pipeline: not setting parms because the pipeline is parametrized!");
+        logger.info("Pipeline "+this.getName()+" not setting parms/features because subpipeline has same config!");
       } else {
+        logger.info("Pipeline "+this.getName()+" setting parms/features from "+config.origUrl);
         setControllerParms(controller);
         // finally set the document features
         if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
@@ -241,6 +242,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
           Utils.setDocumentFeatures(document.getFeatures(), config);
         }
       }
+      logger.info("Pipeline "+this.getName()+" running execite of "+controller.getName());
       controller.execute();
       // TODO: maybe: restore the parameters changed in setControllerParms?
       // if we have overriden some parameters, restore them

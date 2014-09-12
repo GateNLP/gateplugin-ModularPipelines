@@ -63,6 +63,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
           suffixes = "properties;yaml")
   public void setConfigFileUrl(URL fileUrl) {
+    logger.info("Setting config file URL to "+fileUrl);
     if(config.origUrl != null && fileUrl == null) {
       config = new Config();
     } else if(config.origUrl == null && fileUrl != null) {
@@ -99,6 +100,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   
   @Override
   public void execute() throws ExecutionException {
+    logger.info("Running execute() for "+this.getName());
     documentFeaturesSet = false;
     Utils.setControllerParms(this, config);
     // if the controller got invoked on a per-document basis, we can set the
@@ -143,7 +145,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // simply want to set the document features for whenever the first component
     // is run. So we check the flag, then get the document from the component
     // and set the features
-    logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent "+componentIndex);
+    logger.info("Running "+this.getName()+"/runComponent "+componentIndex);    
     if(!documentFeaturesSet) {
       documentFeaturesSet = true; 
       Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();

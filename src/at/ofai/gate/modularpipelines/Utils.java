@@ -38,6 +38,7 @@ public class Utils {
   
   protected static Config readConfigFile(URL configFileUrl) {
     // first read the document features property file
+    logger.info("Loading config file from "+configFileUrl);
     logger.debug("DEBUG: trying to read config from "+configFileUrl);
     Config configData = new Config();
     configData.origUrl = configFileUrl;
