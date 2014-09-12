@@ -104,6 +104,27 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     } else {
       logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"execute: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
     }
+    // In addition, if our config specifies that we want to override the 
+    // config file for all embedded pipelines, do that. We can have two 
+    // situations for now: the pipeline is directly embedded, then we can
+    // directly set the parameter, or we have a Pipeline PR, in which case
+    // we need to set the config file of the Pipeline PR AND tell the Pipeline 
+    // PR to override the config of its controller, if necessary.
+    for(int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
+      ProcessingResource pr = prList.get(componentIndex);
+      if(pr instanceof ParametrizedCorpusController) {
+        logger.debug("Setting config file in execute for "+pr.getName());
+        ((ParametrizedCorpusController)pr).setConfigFileUrl(config.globalConfigFileUrl);
+      } else if(pr instanceof SetParametersAndFeatures) {
+        logger.debug("Setting config file in execute for "+pr.getName());
+        ((SetParametersAndFeatures)pr).setConfigFileUrl(config.globalConfigFileUrl);
+      } else if(pr instanceof Pipeline) {
+        logger.debug("Setting config file in execute for "+pr.getName());
+        ((Pipeline)pr).setConfigFileUrl(config.globalConfigFileUrl);
+        ((Pipeline)pr).setConfig4Pipeline(config.globalConfigFileUrl);
+      }
+    }
+    
     super.execute();
   }
   
@@ -127,6 +148,9 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
     }
+    /*
+     * 
+     * this happens in execute, not necessary to do here (?)
     // In addition, if our config specifies that we want to override the 
     // config file for all embedded pipelines, do that. We can have two 
     // situations for now: the pipeline is directly embedded, then we can
@@ -142,6 +166,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       ((Pipeline)pr).setConfigFileUrl(config.globalConfigFileUrl);
       ((Pipeline)pr).setConfig4Pipeline(config.globalConfigFileUrl);
     }
+    */
     
     // TODO: here we should also deal with any special document features
     // which should be used to set other things in the pipeline.
