@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package at.ofai.gate.modularpipelines;
 
 import gate.CreoleRegister;
@@ -56,21 +52,44 @@ import org.apache.log4j.Logger;
 public class ParametrizedCorpusController extends ConditionalSerialAnalyserController
         implements ActionsPublisher {
 
-  private static final long serialVersionUID = 5865826533344553897L;
+  private static final long serialVersionUID = 5865826552244553897L;
 
   @Optional
   @CreoleParameter(
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
           suffixes = "properties;yaml")
   public void setConfigFileUrl(URL fileUrl) {
-    logger.info("Setting config file URL to "+fileUrl);
-    if(config.origUrl != null && fileUrl == null) {
-      config = new Config();
-    } else if(config.origUrl == null && fileUrl != null) {
-      config = Utils.readConfigFile(configFileUrl);      
-    } else if(config.origUrl != null && !config.origUrl.equals(configFileUrl)) {
-      config = Utils.readConfigFile(configFileUrl);      
+    logger.debug("Controller "+this.getName()+" Setting config file URL to "+fileUrl);
+    if(weAreInitialized) {
+      if(config.origUrl != null && fileUrl == null) {
+        logger.debug("Controller: create empty config in set");
+        config = new Config();
+      } else if(config.origUrl == null && fileUrl != null) {
+        logger.debug("Controller: read config in set1 "+fileUrl);
+        config = Utils.readConfigFile(fileUrl);      
+      } else if(config.origUrl != null && !config.origUrl.equals(fileUrl)) {
+        logger.debug("Controller: read config in set2 "+fileUrl);
+        config = Utils.readConfigFile(fileUrl);      
+      } else {
+        logger.debug("doing nothing config.origUrl="+config.origUrl+" fileUrl="+fileUrl);       
+      }
+    } else {
+      logger.debug("Controller "+this.getName()+" not fully initialized yet, not reloading config");
     }
+    // if the config contains a "inheritconfig" setting, i.e. if the global
+    // config Url field is not null, we need to set it for all direct
+    // sub-pipelines.
+    // However, if this is called *before* this ParametrizedCorpusController
+    // instance got initialized, initialization will happen and there we
+    // do the setting for the sub-pipelines, so we will only set it here
+    // if initialization has not happend yet.
+    // The difficulty arises since this "init" parameter can actually also
+    // be updated after initialization.
+    if(weAreInitialized && config.globalConfigFileUrl != null) {
+      logger.debug("Controller/setConfigFileUrl: set config for sub controllers to "+config.globalConfigFileUrl);
+      setConfigForSubControllers(config.globalConfigFileUrl);
+    }
+    
     configFileUrl = fileUrl;
   }
 
@@ -83,12 +102,41 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   protected static final Logger logger = Logger
           .getLogger(ParametrizedCorpusController.class);
   
+  private boolean weAreInitialized = false;
   
+  /**
+   * Do the necessary initialization.
+   * 
+   * This method gets called when the resource of this type has been created
+   * by the Factory, using the init parameters present at creation time.
+   * However, when a controller is read from a file, this method gets called 
+   * before the contained PRs and other elements are de-serialized. 
+   * Our own Persistence class therefore also invokes the afterLoadCompleted()
+   * method after the object has been fully loaded.
+   * 
+   * @return
+   * @throws ResourceInstantiationException 
+   */
   @Override
-  public Resource init() {
-    config = Utils.readConfigFile(getConfigFileUrl());
-    logger.debug("Config loaded for "+this.getName()+" config is "+config);
+  public Resource init() throws ResourceInstantiationException {    
     return this;
+  }
+  
+  public void afterLoadCompleted() {
+    logger.debug("Controller: read config in afterLoadCompleted "+getConfigFileUrl());
+    config = Utils.readConfigFile(getConfigFileUrl());
+    //logger.debug("Config loaded for "+this.getName()+" config is "+config);
+    // If the config file we just read contains the "inheritconfig" setting,
+    // try to set the config file of all directly included sub-pipelines to 
+    // the same config file. 
+    // When this init() method is executed, all the subpipelines already have
+    // been loaded and their config files were read, so re-setting their 
+    // config files now will not change any init parameters. 
+    if(config.globalConfigFileUrl != null) {
+      logger.debug("Controller/afterLoadCompleted: set config for sub controllers to "+config.globalConfigFileUrl);
+      setConfigForSubControllers(config.globalConfigFileUrl);
+    }    
+    weAreInitialized = true;
   }
 
   @Override
@@ -96,58 +144,51 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     init();
   }
 
-  protected boolean documentFeaturesSet = false;
-  
+  /**
+   * Run the controller on a corpus or for one document.
+   * 
+   * This method gets invoked on the top level once for the whole corpus,
+   * in which case the document will be null, and for embedded pipelines once
+   * for each document, in which case the document will be non-null. 
+   * 
+   * @throws ExecutionException 
+   */
   @Override
   public void execute() throws ExecutionException {
-    logger.info("Running execute() for "+this.getName());
-    documentFeaturesSet = false;
+    logger.debug("Running execute() for "+this.getName());
+    // We set the rutime parameters and run modes here, which means once 
+    // for the whole corpus for the main pipeline but for each document 
+    // for the sub-pipelines. Nothing we can do about this with the 
+    // current design of controllers.
     Utils.setControllerParms(this, config);
-    // if the controller got invoked on a per-document basis, we can set the
-    // document features here (in that case document will be non-null) and
-    // set the flag to true ...
-    if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
-      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/execute: setting document features "+config.docFeatures);
-      Utils.setDocumentFeatures(document.getFeatures(), config);
-      documentFeaturesSet = true;
-    } else {
-      logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"execute: NOT setting document features, document="+document+" config.docFeatures="+config.docFeatures);
-    }
-    // In addition, if our config specifies that we want to override the 
-    // config file for all embedded pipelines, do that. We can have two 
-    // situations for now: the pipeline is directly embedded, then we can
-    // directly set the parameter, or we have a Pipeline PR, in which case
-    // we need to set the config file of the Pipeline PR AND tell the Pipeline 
-    // PR to override the config of its controller, if necessary.
-    if(config.globalConfigFileUrl != null) {
-      for (int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
-        ProcessingResource pr = prList.get(componentIndex);
-        if (pr instanceof ParametrizedCorpusController) {
-          logger.debug("Setting config file in execute for " + pr.getName());
-          ((ParametrizedCorpusController) pr).setConfigFileUrl(config.globalConfigFileUrl);
-        } else if (pr instanceof SetParametersAndFeatures) {
-          logger.debug("Setting config file in execute for " + pr.getName());
-          ((SetParametersAndFeatures) pr).setConfigFileUrl(config.globalConfigFileUrl);
-        } else if (pr instanceof Pipeline) {
-          logger.info("Setting config file in execute for Pipeline PR " + pr.getName());
-          ((Pipeline) pr).setConfigFileUrl(config.globalConfigFileUrl);
-          ((Pipeline) pr).setConfig4Pipeline(config.globalConfigFileUrl);
-        }
-      }
-    }
+    // NOTE: the document features will always be set in the runComponent
+    // callback.
+    
+    // This will eventually delegate to the super implementation fo 
+    // executeImpl which will then eventually delegate to runComponent, which
+    // we handle separately below.
     super.execute();
   }
-  
+
+  /**
+   * If a controller is run on a whole corpus, this method will get called
+   * for each component and each document and each component will have its
+   * document parameter set to the document to process. 
+   * 
+   * This is always called for *all* components in the controller, if the 
+   * controller is a conditional controller, then the running strategy
+   * is only checked once we delegate up to the super... implementation of 
+   * runComponent which eventually actually executes the PR, if necessary.
+   * Since we always get called for all components, we always process only
+   * for the first, which is componentIndex=0. 
+   * 
+   * @param componentIndex
+   * @throws ExecutionException 
+   */
   @Override
   protected void runComponent(int componentIndex) throws ExecutionException{
-    // if the controller is run on a corpus, document will always be null
-    // this method will get invoked for each component that is run but we 
-    // simply want to set the document features for whenever the first component
-    // is run. So we check the flag, then get the document from the component
-    // and set the features
-    logger.info("Running "+this.getName()+"/runComponent "+componentIndex);    
-    if(!documentFeaturesSet) {
-      documentFeaturesSet = true; 
+    logger.debug("Running "+this.getName()+"/runComponent "+componentIndex);    
+    if(componentIndex == 0) {
       Document doc = ((LanguageAnalyser)prList.get(componentIndex)).getDocument();
       if(doc != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: setting document features "+config.docFeatures);
@@ -158,27 +199,8 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");
     }
-    /*
-     * 
-     * this happens in execute, not necessary to do here (?)
-    // In addition, if our config specifies that we want to override the 
-    // config file for all embedded pipelines, do that. We can have two 
-    // situations for now: the pipeline is directly embedded, then we can
-    // directly set the parameter, or we have a Pipeline PR, in which case
-    // we need to set the config file of the Pipeline PR AND tell the Pipeline 
-    // PR to override the config of its controller, if necessary.
-    ProcessingResource pr = prList.get(componentIndex);
-    if(pr instanceof ParametrizedCorpusController) {
-      ((ParametrizedCorpusController)pr).setConfigFileUrl(config.globalConfigFileUrl);
-    } else if(pr instanceof SetParametersAndFeatures) {
-      ((SetParametersAndFeatures)pr).setConfigFileUrl(config.globalConfigFileUrl);
-    } else if(pr instanceof Pipeline) {
-      ((Pipeline)pr).setConfigFileUrl(config.globalConfigFileUrl);
-      ((Pipeline)pr).setConfig4Pipeline(config.globalConfigFileUrl);
-    }
-    */
     
-    // TODO: here we should also deal with any special document features
+    // MAYBE TODO: here we should also deal with any special document features
     // which should be used to set other things in the pipeline.
     // This would make it possible for the webservice to influence the 
     // config settings on a doc by doc basis easily.
@@ -186,7 +208,24 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // = process all features which start with a certain prefix
     // = update the config datastructure based on these values. Not sure yet
     //   how, probably by structured names??
+    
+    // now delegate to the correct super implementation of runComponent 
+    // which will eventually decide if to run the PR and then run it.
     super.runComponent(componentIndex);    
+  }
+  
+  public void setConfigForSubControllers(URL configFileUrl) {
+    logger.debug("Running setConfigForSubControllers in "+this.getName()+" config="+configFileUrl+" have components: "+prList);
+    for (int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
+      ProcessingResource pr = prList.get(componentIndex);
+      if (pr instanceof ParametrizedCorpusController) {
+        logger.debug("Setting config file for embedded pipeline " + pr.getName());
+        ((ParametrizedCorpusController) pr).setConfigFileUrl(config.globalConfigFileUrl);
+      } else if (pr instanceof Pipeline) {
+        logger.debug("From controller "+this.getName()+" Setting config file for PipelinePR " + pr.getName());
+        ((Pipeline) pr).setConfig4Pipeline(config.globalConfigFileUrl);
+      }
+    }
   }
   
   
@@ -211,9 +250,9 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
         public void actionPerformed(ActionEvent evt) {
           if (getConfigFileUrl() != null) {
             config = Utils.readConfigFile(getConfigFileUrl());
-            logger.info("Reloaded config file " + getConfigFileUrl());
+            logger.debug("Reloaded config file " + getConfigFileUrl());
           } else {
-            logger.info("Nothing re-loaded, not config file set");
+            logger.debug("Nothing re-loaded, not config file set");
           }
         }
       });
@@ -262,10 +301,10 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
             setConfigFileUrl(newUrl);
             if (newUrl != null) {
               config = Utils.readConfigFile(getConfigFileUrl());
-              logger.info("Reloaded config file " + getConfigFileUrl());
+              logger.debug("Reloaded config file " + getConfigFileUrl());
             } else {
               config = new Config();
-              logger.info("Cleared config data");
+              logger.debug("Cleared config data");
             }
           }
         }

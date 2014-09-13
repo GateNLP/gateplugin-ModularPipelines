@@ -1,0 +1,5 @@
+- set: prparm
+  controller: pipelineSub02
+  prname: groovy
+  name: scriptParams
+  value: "k1=fromSub02;k2=v2"

@@ -1,9 +1,3 @@
-/*
- *  Pipeline.java
- *
- *
- */
-
 package at.ofai.gate.modularpipelines;
 
 import gate.Controller;
@@ -14,6 +8,7 @@ import gate.FeatureMap;
 import gate.LanguageAnalyser;
 import gate.ProcessingResource;
 import gate.Resource;
+import gate.creole.AbstractLanguageAnalyser;
 import gate.creole.ConditionalSerialAnalyserController;
 import gate.creole.ControllerAwarePR;
 import gate.creole.CustomDuplication;
@@ -23,22 +18,15 @@ import gate.creole.SerialAnalyserController;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.HiddenCreoleParameter;
-import gate.creole.metadata.Optional;
-import gate.creole.metadata.RunTime;
 import gate.persist.PersistenceException;
 import gate.util.GateRuntimeException;
 import gate.util.persistence.PersistenceManager;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-// TODO: save/restore parameter values for both config and parm settings
-// TODO: add debug setting to prevent restoring the parameter values and
-//       enable some debug output
 // TODO: add feature to delete document feature: deletedocfeature
 
 /** 
@@ -55,7 +43,7 @@ import org.apache.log4j.Logger;
 @CreoleResource(name = "Pipeline",
         comment = "Represents a pipeline or corpus pipeline loaded from a xgapp/gapp file",
         helpURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki/Pipline-PR")
-public class Pipeline  extends SetParmsAndFeatsFromConfigBase
+public class Pipeline  extends AbstractLanguageAnalyser
   implements ProcessingResource, CustomDuplication, ControllerAwarePR {
   private static final long serialVersionUID = 1L;
 
@@ -77,22 +65,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     return isCustomDuplicated;
   }
   protected boolean isCustomDuplicated = false;
-  
-  
-  // the parameter overwrites will be done before the "enclosed" pipeline is run and will
-  // be undone afterwards (the old values are saved). This can only affect runtime parameters!
-  // TODO: what happens when somebody tries to change an init parm that way?
-  @Optional
-  @RunTime
-  @CreoleParameter(comment="Parameters to overwrite before running a pipeline. In the form PrName.ParmName/value. ")
-  public void setPipelineParameters(FeatureMap parameters) {
-    pipelineParameters = parameters;
-  }
-  public FeatureMap getPipelineParameters() {
-    return pipelineParameters;
-  }
-  protected FeatureMap pipelineParameters;
-  
+    
   protected Controller controller;
   
   
@@ -150,12 +123,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     // (if a corpus controller is invoked inside a corpus controller, the
     // document is set and the inner controller is only run on that single
     // document while the corpus is ignored).
-    if(oldConfigFileUrl != configFileUrl) {
-      config = Utils.readConfigFile(configFileUrl);
-      logger.debug("Config loaded for "+this.getName()+" config is "+config);
-      oldConfigFileUrl = configFileUrl;
-    }
-    
+
     if(controller instanceof CorpusController) {      
       ((CorpusController)controller).setCorpus(corpus);      
     }
@@ -165,103 +133,10 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
     try {
       logger.debug(("Running pipeline "+controller.getName()+" on "+
               (document != null ? document.getName() : "(no document)" )));
-
-      HashMap<String,Object> savedParms = new HashMap<String,Object>();
-      HashMap<String,Resource> name2pr = new HashMap<String,Resource>();
-
-      // if we want to override parameters: these can come from the pipelineParameters
-      // parameter (our own runtime parameter which is a feature map) 
-      if(pipelineParameters != null && !pipelineParameters.isEmpty()) {
-        // get all the prs and create a map of names->prs
-        ArrayList<Resource> prlist = new ArrayList<Resource>();
-        prlist.addAll(controller.getPRs());
-        for(Resource pr : prlist) {
-          name2pr.put(pr.getName(), pr);
-        }
-          
-        // process each parameter in the featuremap
-        for(Object keyObject : pipelineParameters.keySet()) {
-          String key = (String)keyObject;
-          String[] prparm = key.split("->",2);
-          if(prparm.length != 2) {
-            throw new GateRuntimeException("Not a correct pipeline parameter key (must be prname->prparm): "+key);
-          }
-          String prname = prparm[0];
-          String parmname = prparm[1]; 
-          // try to find the PR
-          Resource pr = name2pr.get(prparm[0]);
-          if(pr == null) {
-            logger.info("Could not set parameter "+parmname+" for PR "+prname);
-          } else {
-            // get the old parameter value
-            boolean parmSaved = false;
-            try {
-              savedParms.put(key, pr.getParameterValue(parmname));
-              parmSaved = true;
-            } catch (ResourceInstantiationException e) {
-              // TODO Auto-generated catch block
-              logger.error("Parameter not set, got an exception trying to save the parameter value for "+key,e);
-            }
-            // if we could save the value, try to set the new value
-            if(parmSaved) {
-              try {
-                Object value = pipelineParameters.get(keyObject);
-                
-                if(value instanceof String) {
-                  String string = (String)value;
-                  string = gate.Utils.replaceVariablesInString(string, corpus.getFeatures(), controller.getFeatures(),this.getFeatures());
-                  value = string;
-                }
-                logger.debug("Trying to set parameter "+parmname+" to value "+value+" for "+pr.getName());
-                pr.setParameterValue(parmname, value);
-              } catch (ResourceInstantiationException e) {
-                logger.error("Got an exception trying to set the new value for "+key,e);
-              }
-            }
-          }
-          
-        } // for
-      } // if we have parameter overrides
-      // now override any parameters from configured from the properties file
-      logger.debug("Trying to set controller parms for "+controller.getName());
-      // TODO: we want to avoid setting stuff twice if the pipeline which we
-      // run is parametrized and with the same config file. however, just 
-      // comparing the URIs will not always work correctly if we have two
-      // diferent URIs pointing to the same file because of symbolic links
-      // or similar. We should use a different method to compare the configs
-      // (e.g. hash-code of content)
-      if(controller instanceof ParametrizedCorpusController && 
-        isEqual(((ParametrizedCorpusController)controller).getConfigFileUrl(),getConfigFileUrl())) {
-        logger.info("Pipeline "+this.getName()+" not setting parms/features because subpipeline has same config!");
-      } else {
-        logger.info("Pipeline "+this.getName()+" setting parms/features from "+config.origUrl);
-        setControllerParms(controller);
-        // finally set the document features
-        if(document != null && config.docFeatures != null && !config.docFeatures.isEmpty()) {
-          //document.getFeatures().putAll(config.docFeatures);
-          Utils.setDocumentFeatures(document.getFeatures(), config);
-        }
-      }
-      logger.info("Pipeline "+this.getName()+" running execite of "+controller.getName());
+      
+      logger.debug("PipelinePR "+this.getName()+" running execute of "+controller.getName());
       controller.execute();
-      // TODO: maybe: restore the parameters changed in setControllerParms?
-      // if we have overriden some parameters, restore them
-      if(!savedParms.isEmpty()) {
-        for(String key : savedParms.keySet()) {
-          String[] prparm = key.split("->",2);
-          String prname = prparm[0];
-          String parmname = prparm[1]; 
-          // try to find the PR
-          Resource pr = name2pr.get(prparm[0]);
-          if(pr != null) {
-            try {
-              pr.setParameterValue(parmname, savedParms.get(key));
-            } catch (ResourceInstantiationException e) {
-              logger.error("Could not restore value for "+key,e);
-            }
-          }
-        }
-      } // if we need to restore parameters
+      
     } catch (ExecutionException ex) {
       throw new GateRuntimeException(
         "Error executing pipeline "+pipelineFileURL,ex);
@@ -372,7 +247,7 @@ public class Pipeline  extends SetParmsAndFeatsFromConfigBase
   public void setConfig4Pipeline(URL configFileUrl) {
     if(controller instanceof ParametrizedCorpusController) {
       ParametrizedCorpusController pcc = (ParametrizedCorpusController)controller;
-      logger.info("Re-setting the config file for sub pipeline "+pcc.getName());
+      logger.debug("Re-setting the config file for sub pipeline "+pcc.getName());
       pcc.setConfigFileUrl(configFileUrl);
     }
   }

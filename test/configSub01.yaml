@@ -1,0 +1,13 @@
+- set: docfeature
+  name: fromSub01
+  value: fromSub01
+- set: prparm
+  controller: pipelineSub01
+  prname: groovy
+  name: scriptParams
+  value: "k1=fromSub01;k2=v2"
+- set: prinit
+  controller: Sub01
+  prname: groovy
+  name: encoding
+  value: UTF-16

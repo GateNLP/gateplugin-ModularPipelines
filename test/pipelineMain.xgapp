@@ -18,14 +18,61 @@
       <docList>
         <gate.util.persistence.LRPersistence>
           <resourceType>gate.corpora.DocumentImpl</resourceType>
-          <resourceName>doc1.txt_0001B</resourceName>
+          <resourceName>doc02.xml_00014</resourceName>
           <initParams class="gate.util.persistence.MapPersistence">
             <mapType>gate.util.SimpleFeatureMapImpl</mapType>
             <localMap>
               <entry>
                 <string>sourceUrl</string>
                 <gate.util.persistence.PersistenceManager-URLHolder>
-                  <urlString>$relpath$doc1.txt</urlString>
+                  <urlString>$relpath$doc02.xml</urlString>
+                </gate.util.persistence.PersistenceManager-URLHolder>
+              </entry>
+              <entry>
+                <string>preserveOriginalContent</string>
+                <boolean>false</boolean>
+              </entry>
+              <entry>
+                <string>collectRepositioningInfo</string>
+                <boolean>false</boolean>
+              </entry>
+              <entry>
+                <string>markupAware</string>
+                <boolean>true</boolean>
+              </entry>
+              <entry>
+                <string>sourceUrlEndOffset</string>
+                <null/>
+              </entry>
+              <entry>
+                <string>stringContent</string>
+                <string></string>
+              </entry>
+              <entry>
+                <string>mimeType</string>
+                <null/>
+              </entry>
+              <entry>
+                <string>encoding</string>
+                <string>UTF-8</string>
+              </entry>
+              <entry>
+                <string>sourceUrlStartOffset</string>
+                <null/>
+              </entry>
+            </localMap>
+          </initParams>
+        </gate.util.persistence.LRPersistence>
+        <gate.util.persistence.LRPersistence>
+          <resourceType>gate.corpora.DocumentImpl</resourceType>
+          <resourceName>doc01.xml_00013</resourceName>
+          <initParams class="gate.util.persistence.MapPersistence">
+            <mapType>gate.util.SimpleFeatureMapImpl</mapType>
+            <localMap>
+              <entry>
+                <string>sourceUrl</string>
+                <gate.util.persistence.PersistenceManager-URLHolder>
+                  <urlString>$relpath$doc01.xml</urlString>
                 </gate.util.persistence.PersistenceManager-URLHolder>
               </entry>
               <entry>
@@ -65,7 +112,7 @@
         </gate.util.persistence.LRPersistence>
       </docList>
       <resourceType>gate.corpora.CorpusImpl</resourceType>
-      <resourceName>Corpus for doc1.txt_0001B</resourceName>
+      <resourceName>corpus</resourceName>
       <initParams class="gate.util.persistence.MapPersistence">
         <mapType>gate.util.SimpleFeatureMapImpl</mapType>
         <localMap>
@@ -107,7 +154,7 @@
               <localMap>
                 <entry>
                   <string>encoding</string>
-                  <string>UTF-8</string>
+                  <string>ISO-8859-1</string>
                 </entry>
                 <entry>
                   <string>rulesURL</string>
@@ -207,14 +254,14 @@
               </localMap>
             </runtimeParams>
             <resourceType>at.ofai.gate.modularpipelines.Pipeline</resourceType>
-            <resourceName>MP:Sub01</resourceName>
+            <resourceName>MP:pipelineSub01</resourceName>
             <initParams class="gate.util.persistence.MapPersistence">
               <mapType>gate.util.SimpleFeatureMapImpl</mapType>
               <localMap>
                 <entry>
                   <string>pipelineFileURL</string>
                   <gate.util.persistence.PersistenceManager-URLHolder>
-                    <urlString>$relpath$Sub01.xgapp</urlString>
+                    <urlString>$relpath$pipelineSub01.xgapp</urlString>
                   </gate.util.persistence.PersistenceManager-URLHolder>
                 </entry>
               </localMap>
@@ -244,7 +291,7 @@
         <entry>
           <string>configFileUrl</string>
           <gate.util.persistence.PersistenceManager-URLHolder>
-            <urlString>$relpath$test1.yaml</urlString>
+            <urlString>$relpath$configMain.yaml</urlString>
           </gate.util.persistence.PersistenceManager-URLHolder>
         </entry>
       </localMap>

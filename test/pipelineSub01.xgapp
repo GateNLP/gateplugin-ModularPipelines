@@ -7,12 +7,60 @@
       <gate.util.persistence.PersistenceManager-URLHolder>
         <urlString>$gatehome$plugins/Groovy/</urlString>
       </gate.util.persistence.PersistenceManager-URLHolder>
+      <gate.util.persistence.PersistenceManager-URLHolder>
+        <urlString>$relpath$../../gateplugin-modularpipelines/</urlString>
+      </gate.util.persistence.PersistenceManager-URLHolder>
     </localList>
     <collectionType>java.util.ArrayList</collectionType>
   </urlList>
   <application class="at.ofai.gate.modularpipelines.ParametrizedCorpusControllerPersistence">
     <strategiesList class="gate.util.persistence.CollectionPersistence">
       <localList>
+        <gate.util.persistence.AnalyserRunningStrategyPersistence>
+          <runMode>1</runMode>
+          <featureName></featureName>
+          <featureValue></featureValue>
+          <pr class="gate.util.persistence.PRPersistence">
+            <runtimeParams class="gate.util.persistence.MapPersistence">
+              <mapType>gate.util.SimpleFeatureMapImpl</mapType>
+              <localMap>
+                <entry>
+                  <string>corpus</string>
+                  <null/>
+                </entry>
+                <entry>
+                  <string>pipelineParameters</string>
+                  <null/>
+                </entry>
+                <entry>
+                  <string>configFileUrl</string>
+                  <null/>
+                </entry>
+                <entry>
+                  <string>document</string>
+                  <null/>
+                </entry>
+              </localMap>
+            </runtimeParams>
+            <resourceType>at.ofai.gate.modularpipelines.Pipeline</resourceType>
+            <resourceName>MP:pipelineSub01Sub01</resourceName>
+            <initParams class="gate.util.persistence.MapPersistence">
+              <mapType>gate.util.SimpleFeatureMapImpl</mapType>
+              <localMap>
+                <entry>
+                  <string>pipelineFileURL</string>
+                  <gate.util.persistence.PersistenceManager-URLHolder>
+                    <urlString>$relpath$pipelineSub01Sub01.xgapp</urlString>
+                  </gate.util.persistence.PersistenceManager-URLHolder>
+                </entry>
+              </localMap>
+            </initParams>
+            <features class="gate.util.persistence.MapPersistence">
+              <mapType>gate.util.SimpleFeatureMapImpl</mapType>
+              <localMap/>
+            </features>
+          </pr>
+        </gate.util.persistence.AnalyserRunningStrategyPersistence>
         <gate.util.persistence.AnalyserRunningStrategyPersistence>
           <runMode>1</runMode>
           <featureName></featureName>
@@ -50,7 +98,7 @@
               <localMap>
                 <entry>
                   <string>encoding</string>
-                  <string>UTF-8</string>
+                  <string>ISO-8859-2</string>
                 </entry>
                 <entry>
                   <string>scriptURL</string>
@@ -72,18 +120,19 @@
     <prList class="gate.util.persistence.CollectionPersistence">
       <localList>
         <gate.util.persistence.PRPersistence reference="../../../strategiesList/localList/gate.util.persistence.AnalyserRunningStrategyPersistence/pr"/>
+        <gate.util.persistence.PRPersistence reference="../../../strategiesList/localList/gate.util.persistence.AnalyserRunningStrategyPersistence[2]/pr"/>
       </localList>
       <collectionType>java.util.ArrayList</collectionType>
     </prList>
     <resourceType>at.ofai.gate.modularpipelines.ParametrizedCorpusController</resourceType>
-    <resourceName>Sub01</resourceName>
+    <resourceName>pipelineSub01</resourceName>
     <initParams class="gate.util.persistence.MapPersistence">
       <mapType>gate.util.SimpleFeatureMapImpl</mapType>
       <localMap>
         <entry>
           <string>configFileUrl</string>
           <gate.util.persistence.PersistenceManager-URLHolder>
-            <urlString>$relpath$test.config.yaml</urlString>
+            <urlString>$relpath$configSub01.yaml</urlString>
           </gate.util.persistence.PersistenceManager-URLHolder>
         </entry>
       </localMap>

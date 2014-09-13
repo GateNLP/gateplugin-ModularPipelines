@@ -15,15 +15,12 @@ import gate.util.GateRuntimeException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
@@ -36,10 +33,21 @@ public class Utils {
   protected static final Logger logger = Logger
           .getLogger(Utils.class);
   
+  /**
+   * Create a config object by reading from the URL or an empty config object
+   * if the URL is null, but allow overriding the URL from a property.
+   * 
+   * This reads a config file from the URL given in the parameter unless 
+   * the system property at.ofai.gate.modularpipelines.configFile
+   * is set, in which case the configuration will be read from there.
+   * If the final configFileUrl to use is null, an empty configuration object
+   * is returned. 
+   * 
+   * @param configFileUrl
+   * @return a possibly empty Config instance
+   */
   protected static Config readConfigFile(URL configFileUrl) {
-    // first read the document features property file
-    logger.info("Loading config file from "+configFileUrl);
-    logger.debug("DEBUG: trying to read config from "+configFileUrl);
+    logger.debug("Loading config file from "+configFileUrl);
     Config configData = new Config();
     configData.origUrl = configFileUrl;
     File configFile = null;
@@ -50,59 +58,7 @@ public class Utils {
       configFile = gate.util.Files.fileFromURL(configFileUrl);
     } 
     if (configFile != null) {
-      if (configFile.toString().endsWith(".properties")) {
-        Properties properties = new Properties();
-        try {
-          properties.load(new FileReader(configFile));
-        } catch (IOException ex) {
-          throw new GateRuntimeException("Could not read properties file " + configFile, ex);
-        }
-
-        // check all the keys in the property file and see if they match the
-        // name pattern for one of the things we already support
-        for (String key : properties.stringPropertyNames()) {
-          if (key.startsWith("docfeature.")) {
-            String featName = key.replaceAll("^docfeature\\.", "");
-            String featValue = properties.getProperty(key);
-            configData.docFeatures.put(featName, featValue);
-            configData.docFeaturesOverridable.put(featName,true); 
-          } else if (key.startsWith("prparm.")) {
-            String settingId = key.substring("prparm.".length());
-            settingId = settingId.replaceAll("\\.[^.]+$", "");
-            String nameProp = "prparm." + settingId + ".prname";
-            String parmProp = "prparm." + settingId + ".name";
-            String valueProp = "prparm." + settingId + ".value";
-            String contrProp = "prparm." + settingId + ".controller";
-            String prName = properties.getProperty(nameProp, null);
-            String prParm = properties.getProperty(parmProp, null);
-            String prValue = properties.getProperty(valueProp, null);
-            String prContr = properties.getProperty(contrProp, null);
-            if (prName == null) {
-              throw new GateRuntimeException("No property specifying pr name (.prname) for pr parameter setting " + key);
-            }
-            if (prParm == null) {
-              throw new GateRuntimeException("No property specifying  parameter name (.name) for pr parameter setting " + key);
-            }
-            if (prValue == null) {
-              throw new GateRuntimeException("No property specifying parameter value (.value) for pr parameter setting " + key);
-            }
-            if (prContr == null) {
-              throw new GateRuntimeException("No property specifying controller name (.controller) for pr parameter setting " + key);
-            }
-            String prId = prContr + "\t" + prName;
-            Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
-            if (prparm == null) {
-              prparm = new HashMap<String, Object>();
-            }
-            prparm.put(prParm, prValue);
-            configData.prRuntimeParms.put(prId, prparm);
-          } else if (key.startsWith("propset")) {
-            System.getProperties().put(key.substring("propset".length()), properties.getProperty(key));
-          } else { // startswith prparm
-            throw new GateRuntimeException("setting does not start with a known prefix: " + key);
-          }
-        }
-      } else if (configFile.toString().endsWith(".yaml")) {
+      if (configFile.toString().endsWith(".yaml")) {
         Yaml yaml = new Yaml();
         FileInputStream is;
         try {
@@ -230,7 +186,7 @@ public class Utils {
           throw new GateRuntimeException("Could not read config file, not a list of settings: " + configFile);
         }
       } else {
-        throw new GateRuntimeException("Not a supported config file type (.properties and .yaml): " + configFile);
+        throw new GateRuntimeException("Not a supported config file type (.yaml): " + configFile);
       }
     }
     return configData;

@@ -1,0 +1,29 @@
+## configMain.yaml
+
+- set: inheritconfig
+
+- set: docfeature
+  name: globalFeature1
+  value:  globalValue1
+  override: true
+- set: docfeature
+  name: globalFeature2
+  value: globalValue2
+  override: false
+
+## the following settings are all for the sub-pipelines and 
+## will only be used if the inheritconfig setting is activated
+- set: prparm
+  controller: pipelineSub01
+  prname: groovy
+  name: scriptParams
+  value: "k1=fromConfigMain;k2=v2"
+- set: prrun
+  controller: pipelineSub01
+  prname: groovy
+  value: false
+- set: prinit
+  controller: Sub01
+  prname: groovy
+  name: encoding
+  value: ISO-8859-2
