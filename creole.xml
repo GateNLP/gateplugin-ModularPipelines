@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <CREOLE-DIRECTORY 
-  VERSION="1.1" 
+  VERSION="2.0" 
   GATE-MIN="8.0"
   ID="com.jpetrak.ModularPipelines"
   DESCRIPTION="Represent sub-pipelines as processing resources to make it easier to build modular pipelines; support parametrization of pipelines"
