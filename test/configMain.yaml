@@ -1,6 +1,6 @@
 ## configMain.yaml
 
-- set: inheritconfig
+##- set: inheritconfig
 
 - set: docfeature
   name: globalFeature1
