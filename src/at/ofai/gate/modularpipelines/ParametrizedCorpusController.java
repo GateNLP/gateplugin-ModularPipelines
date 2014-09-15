@@ -155,7 +155,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
    */
   @Override
   public void execute() throws ExecutionException {
-    logger.debug("Running execute() for "+this.getName());
+    logger.debug("Running execute() for "+this.getName()+" config is "+config);
     // We set the rutime parameters and run modes here, which means once 
     // for the whole corpus for the main pipeline but for each document 
     // for the sub-pipelines. Nothing we can do about this with the 
