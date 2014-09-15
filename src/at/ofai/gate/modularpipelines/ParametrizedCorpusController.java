@@ -59,7 +59,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
           suffixes = "properties;yaml")
   public void setConfigFileUrl(URL fileUrl) {
-    logger.debug("Controller "+this.getName()+" Setting config file URL to "+fileUrl);
+    logger.debug("******* Controller "+this.getName()+" Setting config file URL to "+fileUrl);
     if(weAreInitialized) {
       if(config.origUrl != null && fileUrl == null) {
         logger.debug("Controller: create empty config in set");
