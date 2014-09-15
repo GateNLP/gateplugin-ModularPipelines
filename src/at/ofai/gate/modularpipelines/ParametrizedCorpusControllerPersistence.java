@@ -25,6 +25,7 @@ public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialA
     initParams = PersistenceManager.getTransientRepresentation(
             initParams,containingControllerName,initParamOverrides);
     FeatureMap ourParms = (FeatureMap)initParams;
+    System.out.println("=== Persistence START: "+ourParms);
     // NOTE: in order to be able for a parent pipeline config file to override
     // the config settings of a sub pipeline, INCLUDING the init time settings,
     // we would need to be able to somehow now here at this point what the
@@ -57,6 +58,7 @@ public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialA
     // only with a partly initialized object, which did not yet have the PR list.
     // To run any initialization which must happen after we have everything, we
     // use our own afterLoadCompleted() method:
+    System.out.println("=== Persistence END: "+ourParms+" calling afterLoadCompleted");
     obj.afterLoadCompleted();
     return obj;
   }
