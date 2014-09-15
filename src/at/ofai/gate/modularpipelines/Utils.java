@@ -43,7 +43,7 @@ public class Utils {
    * @return a possibly empty Config instance
    */
   protected static Config readConfigFile(URL configFileUrl) {
-    logger.debug("Loading config file from "+configFileUrl);
+    logger.debug("Utils.readConfigFile: Loading config file from "+configFileUrl);
     Config configData = new Config();
     configData.origUrl = configFileUrl;
     File configFile = null;

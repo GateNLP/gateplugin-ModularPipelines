@@ -124,7 +124,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   
   public void afterLoadCompleted() {
     config = Utils.readConfigFile(getConfigFileUrl());
-    logger.debug("Controller: read config in afterLoadCompleted "+getConfigFileUrl()+" config="+config);
+    logger.debug("Controller: "+this.getName()+" read config in afterLoadCompleted "+getConfigFileUrl()+" config="+config);
     //logger.debug("Config loaded for "+this.getName()+" config is "+config);
     // If the config file we just read contains the "inheritconfig" setting,
     // try to set the config file of all directly included sub-pipelines to 
@@ -133,7 +133,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // been loaded and their config files were read, so re-setting their 
     // config files now will not change any init parameters. 
     if(config.globalConfigFileUrl != null) {
-      logger.debug("Controller/afterLoadCompleted: set config for sub controllers to "+config.globalConfigFileUrl);
+      logger.debug("Controller/afterLoadCompleted: "+this.getName()+" set config for sub controllers to "+config.globalConfigFileUrl);
       setConfigForSubControllers(config.globalConfigFileUrl);
     }    
     weAreInitialized = true;
