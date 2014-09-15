@@ -86,7 +86,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // The difficulty arises since this "init" parameter can actually also
     // be updated after initialization.
     if(weAreInitialized && config.globalConfigFileUrl != null) {
-      logger.debug("!!!!! Controller/setConfigFileUrl: set config for sub controllers to "+config.globalConfigFileUrl);
+      logger.debug("!!!!! Controller/setConfigFileUrl: "+this.getName()+" set config for sub controllers to "+config.globalConfigFileUrl);
       setConfigForSubControllers(config.globalConfigFileUrl);
     }
     
@@ -203,7 +203,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
         logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: setting document features "+config.docFeatures);
         Utils.setDocumentFeatures(doc.getFeatures(), config);
       } else {
-        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+doc+" config.docFeatures="+config.docFeatures);
+        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/runComponent: NOT setting document features, document="+doc+" config="+config);
       }
     } else {
       logger.debug("DEBUG  parametrized controller pipeline "+this.getName()+"/runComponent: set document features already done");

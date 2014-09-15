@@ -4,12 +4,17 @@ import gate.FeatureMap;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author johann
  */
 public class Config {
+  private static final Logger logger = Logger.getLogger("Config");
+  public Config() {
+    logger.debug("Config: creating new");
+  }
   // If this is non-null it signals that any sub-pipeline of the pipeline
   // which has this set should have their config file URL set to this too.
   // This is used to allow for an outer config file to set the config file 
