@@ -59,7 +59,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
           comment = "The URL of the config file for setting parameters and features (.properties or .yaml)",
           suffixes = "properties;yaml")
   public void setConfigFileUrl(URL fileUrl) {
-    logger.debug("******* Controller "+this.getName()+" Setting config file URL to "+fileUrl);
+    logger.debug("Controller "+this.getName()+" Setting config file URL to "+fileUrl);
     if(weAreInitialized) {
       if(config.origUrl != null && fileUrl == null) {
         logger.debug("Controller: create empty config in set");
@@ -124,7 +124,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   
   public void afterLoadCompleted() {
     config = Utils.readConfigFile(getConfigFileUrl());
-    logger.debug("Controller: "+this.getName()+" read config in afterLoadCompleted "+getConfigFileUrl()+" config="+config);
+    logger.debug("****** Controller: "+this.getName()+" read config in afterLoadCompleted "+getConfigFileUrl()+" config="+config);
     //logger.debug("Config loaded for "+this.getName()+" config is "+config);
     // If the config file we just read contains the "inheritconfig" setting,
     // try to set the config file of all directly included sub-pipelines to 
