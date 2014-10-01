@@ -129,6 +129,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   @Override
   public Resource init() throws ResourceInstantiationException {    
     config = Utils.readConfigFile(getConfigFileUrl()); 
+    // TODO: we need to find out somehow if this instance was loaded from
+    // a file (in which case the globalConfigFileUrl processing will happen
+    // in afterLoadCompleted) or if we got created by custom duplication
+    // (in which case we should do it here), or if this has been created
+    // by a client using the Factory (in which case I have no idea what to do)
     return this;
   }
   
