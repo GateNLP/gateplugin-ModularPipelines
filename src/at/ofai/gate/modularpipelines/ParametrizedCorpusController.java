@@ -42,6 +42,15 @@ import org.apache.log4j.Logger;
 // in addition.
 
 
+// NOTE: ok, implementing our own controller which depends on proper initialization
+// is a nightmare: the problem is that init() is being called add odd and different
+// times depending on how the controller is initialized: if we read from a gapp
+// file, then init is called *before* anything is initilized by the system
+// other than the bare resource part. But if we custom duplicate, then the 
+// instance is already initialized. Finally if a user creates the instance
+// with the Factory, we will get an un-initialized object but afterLoadCompleted
+// will not get called (our own method to signal that loading has been completed). 
+
 /**
  *
  * @author johann
@@ -119,11 +128,11 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
    */
   @Override
   public Resource init() throws ResourceInstantiationException {    
+    config = Utils.readConfigFile(getConfigFileUrl()); 
     return this;
   }
   
-  public void afterLoadCompleted() {
-    config = Utils.readConfigFile(getConfigFileUrl());
+  public void afterLoadCompleted() {    
     logger.debug("****** Controller: "+this.getName()+" read config in afterLoadCompleted "+getConfigFileUrl()+" config="+config);
     //logger.debug("Config loaded for "+this.getName()+" config is "+config);
     // If the config file we just read contains the "inheritconfig" setting,
