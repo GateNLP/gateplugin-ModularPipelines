@@ -106,7 +106,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     return configFileUrl;
   }
   protected URL configFileUrl = null;
-  Config config = new Config();
+  transient Config config = new Config();
 
   protected static final Logger logger = Logger
           .getLogger(ParametrizedCorpusController.class);

@@ -17,8 +17,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
+import java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
  *
@@ -185,8 +187,106 @@ public class Utils {
         throw new GateRuntimeException("Not a supported config file type (.yaml): " + configFile);
       }
     }
+    add2ConfigFromProperties(configData);
     return configData;
   }
+  
+  protected static void add2ConfigFromProperties(Config configData) {
+    String prefix = System.getProperty("at.ofai.gate.modularpipelines.propertyPrefix");
+    String sep = System.getProperty("at.ofai.gate.modularpipelines.separator");
+    if(prefix == null) {
+      prefix = "modularpipelines.";
+    }
+    if(sep == null) {
+      sep = ".";
+    }
+    StringTriple ctlAndPr;
+    for(Entry<Object,Object> entry : System.getProperties().entrySet()) {
+      String key = (String)entry.getKey();
+      if(key.startsWith(prefix)) {
+        // check if it also starts with one of the possible setting actions
+        if(key.startsWith(prefix+"prparm.")) {
+          ctlAndPr = getCtrlPrParm(key,prefix+"prparm.",sep,true);
+          String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
+          Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
+          if (prparm == null) {
+            prparm = new HashMap<String, Object>();
+          }
+          prparm.put(ctlAndPr.s3, System.getProperty(key));
+          configData.prRuntimeParms.put(prId, prparm);
+        } else if(key.startsWith(prefix+"prinit.")) {
+          ctlAndPr = getCtrlPrParm(key,prefix+"prinit.",sep,true);
+          String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
+          Map<String, Object> prparm = configData.prInitParms.get(prId);
+          if (prparm == null) {
+            prparm = new HashMap<String, Object>();
+          }
+          prparm.put(ctlAndPr.s3, System.getProperty(key));
+          configData.prInitParms.put(prId, prparm);          
+        } else if(key.startsWith(prefix+"prrun.")) {
+          ctlAndPr = getCtrlPrParm(key,prefix+"prrun.",sep,false);
+          String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
+          Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
+          if (prparm == null) {
+            prparm = new HashMap<String, Object>();
+          }
+          prparm.put("$$RUNFLAG$$", System.getProperty(key));
+          configData.prRuntimeParms.put(prId, prparm);          
+        } else if(key.startsWith(prefix+"docfeature.")) {
+          String fname = key.substring((prefix+"docfeature.").length());
+          configData.docFeaturesOverridable.put(fname, true);
+          configData.docFeatures.put(fname, System.getProperty(key));          
+        } else if(key.startsWith(prefix+"udocfeature.")) {
+          String fname = key.substring((prefix+"docfeature.").length());
+          configData.docFeaturesOverridable.put(fname, false);
+          configData.docFeatures.put(fname, System.getProperty(key));          
+        } else {
+          throw new GateRuntimeException("Odd property with the modular pipelines prefix encountered: "+key);
+        }
+      }
+    }
+  }
+  
+  protected static StringTriple getCtrlPrParm(String key, String prefix, String sep, boolean getParm) {
+    String ctl;
+    String pr = null;
+    String parm = null;
+    String rest = key.substring(prefix.length());
+    // everything until the first sep is the controller name, everything after that is the pr name
+    int sepidx = rest.indexOf(sep);
+    if(sepidx < 1) {
+      throw new GateRuntimeException("No proper controller name in property "+key);
+    }
+    ctl = rest.substring(0,sepidx);
+    // all that remains after the sep must be the pr name and parm name
+    rest = rest.substring(sepidx+sep.length());
+    if(rest.isEmpty()) {
+      throw new GateRuntimeException("No pr name in property "+key);
+    }
+    if(getParm) {
+      sepidx = rest.indexOf(sep);
+      if(sepidx < 1) {
+        throw new GateRuntimeException("No parm name in property "+key);
+      }
+      pr = rest.substring(0,sepidx);
+      parm = rest.substring(sepidx+sep.length());
+    } else {
+      pr = rest;
+    }
+    System.out.println("DEBUG: getetting for key="+key+" prefix="+prefix+" flag="+getParm);
+    System.out.println("DEBUG: returning ctl="+ctl+" pr="+pr+" parm="+parm);
+    return new StringTriple(ctl,pr,parm);
+    
+  }
+  
+  protected static class StringTriple {
+    public String s1;
+    public String s2;
+    public String s3;
+    public StringTriple(String v1, String v2, String v3) { s1 = v1; s2 = v2; s3 = v3; }
+    public StringTriple(String v1, String v2) { s1 = v1; s2 = v2;  }
+  }
+  
   
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {

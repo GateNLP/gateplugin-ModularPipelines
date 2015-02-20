@@ -52,7 +52,11 @@ public class Config {
       for(String k : val.keySet()) {
         sb.append(k);
         sb.append(":");
-        sb.append(val.get(k).toString());
+        if(val.get(k) == null) {
+          sb.append("(null)");
+        } else {
+          sb.append(val.get(k).toString());
+        }
         sb.append(" ");
       }
     }
