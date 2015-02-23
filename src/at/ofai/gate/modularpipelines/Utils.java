@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
-import java.util.AbstractMap.SimpleImmutableEntry;
 
 /**
  *
@@ -273,8 +272,8 @@ public class Utils {
     } else {
       pr = rest;
     }
-    System.out.println("DEBUG: getetting for key="+key+" prefix="+prefix+" flag="+getParm);
-    System.out.println("DEBUG: returning ctl="+ctl+" pr="+pr+" parm="+parm);
+    //System.out.println("DEBUG: getetting for key="+key+" prefix="+prefix+" flag="+getParm);
+    //System.out.println("DEBUG: returning ctl="+ctl+" pr="+pr+" parm="+parm);
     return new StringTriple(ctl,pr,parm);
     
   }
