@@ -29,6 +29,16 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
+// TODO: now that we changed the Controller base classes  and implemented the setControllerCallbacksEnabled
+// and invokeControllerExecutionStarted/finished methods, we have to think about how to use this
+// for setting the parameters. 
+// So far we do this in execute, but it may be sufficient to do it as part of invokeControllerExecutionStarted
+// before calling super?
+// Are there still situations left where we are forced to do it in execute?
+
+// The problem is that if we do it in execute, then if a PR gets its started method invoked,
+// the parameter has not been set yet!
+
 // NOTE: document how and when this applies the config settings!
 // = java properties are set when the config file is read, but are 
 //   NOT unset or restored (at the moment) when the config file is replaced
