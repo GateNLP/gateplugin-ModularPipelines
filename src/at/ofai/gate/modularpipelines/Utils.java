@@ -229,7 +229,7 @@ public class Utils {
           if (prparm == null) {
             prparm = new HashMap<String, Object>();
           }
-          prparm.put("$$RUNFLAG$$", System.getProperty(key));
+          prparm.put("$$RUNFLAG$$", Boolean.parseBoolean(System.getProperty(key)));
           configData.prRuntimeParms.put(prId, prparm);          
         } else if(key.startsWith(prefix+"docfeature.")) {
           String fname = key.substring((prefix+"docfeature.").length());
