@@ -33,6 +33,12 @@ public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialA
     // mechanism that would allow us to do this, so we need to stick with 
     // the general strategy of using the global system property for this.
     // Unfortunately that strategy will affect all pipelines in the whole VM!
+    
+    // NOTE2: one possible approach would be to allow the initParams object already to get
+    // passed to PersistenceManager.loadObjectFromUrl (e.g. as second, optional parameter). 
+    // That would allow the Pipeline PR to set the initParams before loading this object,
+    // so what we get for configFileUrl would already be the overriden value. 
+    
     URL theURL = (URL)ourParms.get("configFileUrl");
     Config config = Utils.readConfigFile(theURL);    
     // if we could read the config file, set the parameter override map
