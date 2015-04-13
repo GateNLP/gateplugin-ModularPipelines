@@ -50,6 +50,9 @@ public class ControllerConverter extends ResourceHelper {
 
   @Override
   public Resource init() throws ResourceInstantiationException {    
+    //this needs to happen so the right listeners get registered
+    super.init();
+    
     try {
       PersistenceManager.registerPersistentEquivalent(
               at.ofai.gate.modularpipelines.ParametrizedCorpusController.class, 
