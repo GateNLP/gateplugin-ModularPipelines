@@ -330,6 +330,7 @@ public class Utils {
             if (parmName.equals("$$RUNFLAG$$")) {
               logger.debug("Trying to set a runflag");
               if (condController != null) {
+                //System.out.println("DEBUG: Setting runflag "+parmName+" to "+parmValue+" for "+prId);
                 boolean flag = (Boolean) parmValue;
                 AnalyserRunningStrategy str = (AnalyserRunningStrategy) strategies.get(id);
                 logger.debug("Setting the run mode: " + flag);
@@ -339,7 +340,7 @@ public class Utils {
               try {
                 pr.setParameterValue(parmName, parmValue);
               } catch (ResourceInstantiationException ex) {
-                throw new GateRuntimeException("Could not set parameter " + parmName + " for PR id " + prId + " to value " + parmValue);
+                throw new GateRuntimeException("Could not set parameter " + parmName + " for PR id " + prId + " to value " + parmValue,ex);
               }
             }
           } // for parmName : prparm.keySet
