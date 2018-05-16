@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <CREOLE-DIRECTORY 
-  VERSION="2.0" 
-  GATE-MIN="8.0"
+  VERSION="2.1" 
   ID="com.jpetrak.ModularPipelines"
   DESCRIPTION="Represent sub-pipelines as processing resources to make it easier to build modular pipelines; support parametrization of pipelines"
   HELPURL="https://github.com/johann-petrak/gateplugin-modularpipelines/wiki"
