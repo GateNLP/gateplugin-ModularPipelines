@@ -106,7 +106,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       } else if(config.origUrl == null && fileUrl != null) {
         logger.debug("Controller: read config in set1 "+fileUrl);
         config = Utils.readConfigFile(fileUrl);      
-      } else if(config.origUrl != null && !config.origUrl.equals(fileUrl)) {
+      } else if(config.origUrl != null && !config.origUrl.toString().equals(fileUrl.toString())) {
         logger.debug("Controller: read config in set2 "+fileUrl);
         config = Utils.readConfigFile(fileUrl);      
       } else {

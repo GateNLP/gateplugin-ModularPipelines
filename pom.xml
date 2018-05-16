@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>uk.ac.gate</groupId>
+    <artifactId>gate-plugin-base</artifactId>
+    <!-- The version of GATE you wish to build against -->
+    <version>8.5-SNAPSHOT</version>
+    <!-- This forces the parent to always be resolved from the repo -->
+    <relativePath/>
+  </parent>
+  <!-- The Maven coordinates of this plugin -->
+  <groupId>uk.ac.gate.plugins</groupId>
+  <artifactId>modularpipelines</artifactId>
+  <version>2.2-SNAPSHOT</version>
+  <!-- Information about this plugin. This will be used when the plugin is 
+		shown in the GATE plugin manager -->
+  <!-- Add a descriptive short name of the plugin -->
+  <name>ModularPipelines</name>
+  <!-- Add a description of what the plugin does or can be used for. Do not 
+		include the list of processing or language resources, this will be determined 
+		automatically. About one or two paragraphs. -->
+  <description>Provides a way to create modular, nested, pipelines where ich subpipeline
+    can get developed, tested and saved individually. Also allows to override runtime parameters,
+    init time parameters and document features from a config file or by setting java properties.
+  </description>
+  <!-- Add the URL of the plugin's user-oriented web page -->
+  <url>https://github.com/GateNLP/gateplugin-ModularPipelines</url>
+  <licenses>
+    <license>
+      <!-- The license used for most GATE plugins and components. Replace with 
+				any other license which is compatible with the licenses of all the software 
+				and libraries this plugin depends on. -->
+      <name>GNU Lesser General Public License (LGPL), Version 3</name>
+      <url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <!-- there are plenty of other pieces of useful information you can also 
+		provide here. See the pom.xml reference for full details -->
+  <dependencies>
+    <!-- Add the Maven coordinates of all libraries this plugin depends on. 
+			The site https://search.maven.org/ can be used to search for libraries and 
+			copy-paste the XML. Any GATE plugins needed at compile time should use "<scope>provided</scope>" -->
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>1.21</version>
+    </dependency>
+  </dependencies>
+</project>
