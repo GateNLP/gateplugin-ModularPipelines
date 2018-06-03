@@ -3,7 +3,7 @@
   <groupId>uk.ac.gate.plugins</groupId>
   <artifactId>modularpipelines</artifactId>
   <version>2.2-SNAPSHOT</version>
-  <name>ModularPipelines</name>
+  <name>Modular Pipelines</name>
   <description>Provides a way to create modular, nested, pipelines where ich subpipeline
     can get developed, tested and saved individually. Also allows to override runtime parameters,
     init time parameters and document features from a config file or by setting java properties.
