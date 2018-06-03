@@ -1,12 +1,5 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>uk.ac.gate</groupId>
-    <artifactId>gate-plugin-base</artifactId>
-    <version>8.5-SNAPSHOT</version>
-    <relativePath/>
-  </parent>
   <groupId>uk.ac.gate.plugins</groupId>
   <artifactId>modularpipelines</artifactId>
   <version>2.2-SNAPSHOT</version>
@@ -16,6 +9,29 @@
     init time parameters and document features from a config file or by setting java properties.
   </description>
   <url>https://github.com/GateNLP/gateplugin-ModularPipelines</url>
+  <organization>
+    <name>GATE Team</name>
+    <url>http://gate.ac.uk</url>
+  </organization>
+  <developers>
+    <developer>
+      <name>Johann Petrak</name>
+      <email>johann.petrak@gmail.com</email>
+      <organization>GATE Team</organization>
+      <organizationUrl>https://gate.ac.uk</organizationUrl>
+    </developer>
+    <developer>
+      <name>GATE Team</name>
+      <email>gate-developers@lists.sourceforge.net</email>
+      <organization>GATE Team</organization>
+      <organizationUrl>https://gate.ac.uk</organizationUrl>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/GateNLP/gateplugin-ModularPipelines.git</connection>
+    <developerConnection>scm:git:git@github.com:GateNLP/gateplugin-ModularPipelines.git</developerConnection>
+    <url>https://github.com/GateNLP/gateplugin-ModularPipelines</url>
+  </scm>
   <licenses>
     <license>
       <name>GNU Lesser General Public License (LGPL), Version 3</name>
@@ -23,6 +39,12 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <parent>
+    <groupId>uk.ac.gate</groupId>
+    <artifactId>gate-plugin-base</artifactId>
+    <version>8.5-SNAPSHOT</version>
+    <relativePath/>
+  </parent>
   <dependencies>
     <dependency>
       <groupId>org.yaml</groupId>
@@ -30,4 +52,5 @@
       <version>1.21</version>
     </dependency>
   </dependencies>
+  <modelVersion>4.0.0</modelVersion>
 </project>
