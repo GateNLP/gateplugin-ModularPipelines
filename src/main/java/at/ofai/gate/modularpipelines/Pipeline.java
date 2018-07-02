@@ -89,7 +89,7 @@ public class Pipeline  extends AbstractLanguageAnalyser
   protected Controller controller;
   
   
-  protected static final Logger logger = Logger
+  protected static final Logger LOGGER = Logger
           .getLogger(Pipeline.class);
   
   
@@ -103,15 +103,15 @@ public class Pipeline  extends AbstractLanguageAnalyser
       // therefore, we add some debugging code here ...
       if(controller == null) {
         if(!getIsCustomDuplicated()) {
-          logger.debug("Pipeline.init(): No controller, initializing pipeline from URL "+getPipelineFileURL());
+          LOGGER.debug("Pipeline.init(): No controller, initializing pipeline from URL "+getPipelineFileURL());
           initialise_pipeline();
         } else {
-          logger.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
+          LOGGER.debug("Pipeline.init(): No controller, but not initialising pipeline, we got called from custom duplication for URL "+getPipelineFileURL());
         }
       } else {
         throw new ResourceInstantiationException("Pipeline.init(): controller is not null");
       }
-    } catch (Exception ex) {
+    } catch (ResourceInstantiationException | PersistenceException | IOException ex) {
       throw new ResourceInstantiationException(
         "Could not load pipeline "+getPipelineFileURL(),ex);
     }
@@ -125,7 +125,7 @@ public class Pipeline  extends AbstractLanguageAnalyser
     try {
       controller = null;
       initialise_pipeline();
-    } catch (Exception ex) {
+    } catch (ResourceInstantiationException | PersistenceException | IOException ex) {
       throw new GateRuntimeException(
         "Could not re-load pipeline "+getPipelineFileURL(),ex);
     }
@@ -151,10 +151,10 @@ public class Pipeline  extends AbstractLanguageAnalyser
       ((LanguageAnalyser)controller).setDocument(document);      
     }
     try {
-      logger.debug(("Running pipeline "+controller.getName()+" on "+
+      LOGGER.debug(("Running pipeline "+controller.getName()+" on "+
               (document != null ? document.getName() : "(no document)" )));
       
-      logger.debug("PipelinePR "+this.getName()+" running execute of "+controller.getName());
+      LOGGER.debug("PipelinePR "+this.getName()+" running execute of "+controller.getName());
       controller.execute();
       
     } catch (ExecutionException ex) {
@@ -181,39 +181,39 @@ public class Pipeline  extends AbstractLanguageAnalyser
   
   @Override
   public void cleanup() {
-    logger.debug("Pipeline.cleanup(): Deleting controller"+controller.getName());
+    LOGGER.debug("Pipeline.cleanup(): Deleting controller"+controller.getName());
     Factory.deleteResource(controller);
   }
   
   
   protected void initialise_pipeline() throws PersistenceException,
     IOException, ResourceInstantiationException {
-    logger.debug("(Re-)initialising pipeline "+pipelineFileURL);
+    LOGGER.debug("(Re-)initialising pipeline "+pipelineFileURL);
     controller = (Controller)PersistenceManager.loadObjectFromUrl(pipelineFileURL);
   }
   
   @Override
   public Resource duplicate(DuplicationContext ctx)
       throws ResourceInstantiationException {
-    logger.debug("Pipeline.duplicate(): attempting to duplicate PiplinePR "+getPipelineFileURL());
+    LOGGER.debug("Pipeline.duplicate(): attempting to duplicate PiplinePR "+getPipelineFileURL());
     FeatureMap params = Factory.duplicate(getInitParameterValues(), ctx);
     // setting this hidden parameter will tell the init function not to 
     // load the controller even though the controller field will be null. 
     params.put("isCustomDuplicated", true); 
     params.putAll(Factory.duplicate(getRuntimeParameterValues(), ctx));
-    FeatureMap features = Factory.duplicate(this.getFeatures(), ctx);
+    FeatureMap features_here = Factory.duplicate(this.getFeatures(), ctx);
     // instead of letting the duplicate load the controller again, we 
     // create our own duplicated instance of the controller here ....
-    logger.debug("Pipeline.duplicate(): duplicating the controller for "+getPipelineFileURL());
+    LOGGER.debug("Pipeline.duplicate(): duplicating the controller for "+getPipelineFileURL());
     Controller c = (Controller)Factory.duplicate(this.controller, ctx);
     // ... create a duplicate of the PR but with no controller loaded
-    logger.debug("Pipeline.duplicate(): creating a copy of the PR for "+getPipelineFileURL());
+    LOGGER.debug("Pipeline.duplicate(): creating a copy of the PR for "+getPipelineFileURL());
     Pipeline resource = 
             (Pipeline)Factory.createResource(
-              this.getClass().getName(), params, features, this.getName());
+              this.getClass().getName(), params, features_here, this.getName());
     // ... and set the controller in the duplicate to the duplicated controller
     // we just created
-    logger.debug("Pipeline.duplicate(): setting the controller of the duplicate for "+getPipelineFileURL());
+    LOGGER.debug("Pipeline.duplicate(): setting the controller of the duplicate for "+getPipelineFileURL());
     resource.controller = c;
     return resource;
   }
@@ -221,11 +221,9 @@ public class Pipeline  extends AbstractLanguageAnalyser
   public void controllerExecutionStarted(Controller c)
       throws ExecutionException {
     if(controller instanceof ControllerAwarePR) {
-      if(controller instanceof ConditionalSerialAnalyserController) {
-        ((ConditionalSerialAnalyserController)controller).setCorpus(corpus);
-      } else if(controller instanceof SerialAnalyserController) {
-        ((SerialAnalyserController)controller).setCorpus(corpus);
-      }
+      if(controller instanceof CorpusController) {
+        ((CorpusController)controller).setCorpus(corpus);
+      } 
       ((ControllerAwarePR)controller).controllerExecutionStarted(c);
     }    
   }
@@ -233,16 +231,12 @@ public class Pipeline  extends AbstractLanguageAnalyser
   public void controllerExecutionFinished(Controller c)
       throws ExecutionException {
     if(controller instanceof ControllerAwarePR) {
-      if(controller instanceof ConditionalSerialAnalyserController) {
-        ((ConditionalSerialAnalyserController)controller).setCorpus(corpus);
-      } else if(controller instanceof SerialAnalyserController) {
-        ((SerialAnalyserController)controller).setCorpus(corpus);
-      }
+      if(controller instanceof CorpusController) {
+        ((CorpusController)controller).setCorpus(corpus);
+      } 
       ((ControllerAwarePR)controller).controllerExecutionFinished(c);
-      if(controller instanceof ConditionalSerialAnalyserController) {
-        ((ConditionalSerialAnalyserController)controller).setCorpus(null);
-      } else if(controller instanceof SerialAnalyserController) {
-        ((SerialAnalyserController)controller).setCorpus(null);
+      if(controller instanceof CorpusController) {
+        ((CorpusController)controller).setCorpus(null);
       }
     }
   }
@@ -250,16 +244,12 @@ public class Pipeline  extends AbstractLanguageAnalyser
   public void controllerExecutionAborted(Controller c, Throwable t)
       throws ExecutionException {
     if(controller instanceof ControllerAwarePR) {
-      if(controller instanceof ConditionalSerialAnalyserController) {
-        ((ConditionalSerialAnalyserController)controller).setCorpus(corpus);
-      } else if(controller instanceof SerialAnalyserController) {
-        ((SerialAnalyserController)controller).setCorpus(corpus);
-      }
+      if(controller instanceof CorpusController) {
+        ((CorpusController)controller).setCorpus(corpus);
+      } 
       ((ControllerAwarePR)controller).controllerExecutionAborted(c, t);
-      if(controller instanceof ConditionalSerialAnalyserController) {
-        ((ConditionalSerialAnalyserController)controller).setCorpus(null);
-      } else if(controller instanceof SerialAnalyserController) {
-        ((SerialAnalyserController)controller).setCorpus(null);
+      if(controller instanceof CorpusController) {
+        ((CorpusController)controller).setCorpus(null);
       }
     }    
   }
@@ -267,7 +257,7 @@ public class Pipeline  extends AbstractLanguageAnalyser
   public void setConfig4Pipeline(URL configFileUrl) {
     if(controller instanceof ParametrizedCorpusController) {
       ParametrizedCorpusController pcc = (ParametrizedCorpusController)controller;
-      logger.debug("Re-setting the config file for sub pipeline "+pcc.getName());
+      LOGGER.debug("Re-setting the config file for sub pipeline "+pcc.getName());
       pcc.setConfigFileUrl(configFileUrl);
     }
   }

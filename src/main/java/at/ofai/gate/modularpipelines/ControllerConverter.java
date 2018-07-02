@@ -40,6 +40,7 @@ import gate.gui.ResourceHelper;
 import gate.persist.PersistenceException;
 import gate.util.Err;
 import gate.util.persistence.PersistenceManager;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,10 +84,10 @@ public class ControllerConverter extends ResourceHelper {
     return this;
   }
   
-  MakeParametrizedCorpusControllerAction action;
+  private MakeParametrizedCorpusControllerAction action;
   @Override
   protected List<Action> buildActions(NameBearerHandle nbh) {
-    List<Action> actions = new ArrayList<Action>();
+    List<Action> actions = new ArrayList<>();
     if(nbh.getTarget() instanceof ConditionalSerialAnalyserController && 
        !(nbh.getTarget() instanceof ParametrizedCorpusController)) {
       action = new MakeParametrizedCorpusControllerAction((ConditionalSerialAnalyserController)nbh.getTarget());
@@ -95,7 +96,7 @@ public class ControllerConverter extends ResourceHelper {
     return actions;
   }
   
-  class MakeParametrizedCorpusControllerAction extends AbstractAction {
+  private class MakeParametrizedCorpusControllerAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     public ConditionalSerialAnalyserController target;
 
@@ -146,7 +147,7 @@ public class ControllerConverter extends ResourceHelper {
             }
           }
         }
-      } catch(Exception ex) {
+      } catch(ResourceInstantiationException | HeadlessException ex) {
         JOptionPane.showMessageDialog(MainFrame.getInstance(),
             "Error!\n" + ex.toString(), "GATE", JOptionPane.ERROR_MESSAGE);
         ex.printStackTrace(Err.getPrintWriter());

@@ -20,6 +20,7 @@
  */
 package at.ofai.gate.modularpipelines;
 
+import gate.Controller;
 import gate.CreoleRegister;
 import gate.Document;
 import gate.FeatureMap;
@@ -29,9 +30,11 @@ import gate.LanguageAnalyser;
 import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.ConditionalSerialAnalyserController;
+import gate.creole.ControllerAwarePR;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceData;
 import gate.creole.ResourceInstantiationException;
+import gate.creole.RunningStrategy;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
@@ -49,6 +52,25 @@ import static javax.swing.Action.SHORT_DESCRIPTION;
 import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
+// NOTE on the changes to SerialAnalyserController and ConditionalSerialAnalyserController
+// made after the initial version of this class was implemented: 
+// To make the controllerExecutionStarted/Finished/Aborted callbacks work better,
+// two things were added: a way to disable automatically invoking the callbacks on execute()
+// and methods to explicitly invoke the callbacks (both for GCP or situations where
+// some executing code runs execute on a controller for each document separately)
+// Since ParametrizedCorpusController inherits from ConditionalSerialAnalyserController,
+// all the non-overridden methods work automatically in the same way already.
+// We override the following methods:
+// * execute(): currently we set all the config here but we should only do this
+//   at controller started time, before the PRs get controller started 
+//   NOTE: execute is what gets invoked once for a whole corpus for a traditional root controller
+//   but once for each documents for a sub-pipeline or a GCP pipeline
+// * runComponent(): we currently set the document features in there for component 0
+//   This gets invoked every time any element of the pipeline gets executed
+// *  
+// 
+
+
 // TODO: now that we changed the Controller base classes  and implemented the setControllerCallbacksEnabled
 // and invokeControllerExecutionStarted/finished methods, we have to think about how to use this
 // for setting the parameters. 
@@ -58,6 +80,10 @@ import org.apache.log4j.Logger;
 
 // The problem is that if we do it in execute, then if a PR gets its started method invoked,
 // the parameter has not been set yet!
+// Another problem is that using the controller started callback makes more sense than
+// clumsily depending on code in execute to run initialization!
+
+// TODO: also check what impact this has on the Java plugin!
 
 // NOTE: document how and when this applies the config settings!
 // = java properties are set when the config file is read, but are 
@@ -83,7 +109,7 @@ import org.apache.log4j.Logger;
 
 /**
  *
- * @author johann
+ * @author Johann Petrak
  */
 @CreoleResource(name = "Parametrized Corpus Controller",
         comment = "A conditional corpus controller that can be parametrized from a config file",
@@ -163,7 +189,7 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     // a file (in which case the globalConfigFileUrl processing will happen
     // in afterLoadCompleted) or if we got created by custom duplication
     // (in which case we should do it here), or if this has been created
-    // by a client using the Factory (in which case I have no idea what to do)
+    // by a client using the Factory (in which case I have no idea what to do)    
     return this;
   }
   
@@ -200,23 +226,9 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   @Override
   public void execute() throws ExecutionException {
     logger.debug("Running execute() for "+this.getName()+" config is "+config);
-    // We set the rutime parameters and run modes here, which means once 
-    // for the whole corpus for the main pipeline but for each document 
-    // for the sub-pipelines. Nothing we can do about this with the 
-    // current design of controllers.
-    Utils.setControllerParms(this, config);
-    // NOTE: the document features will always be set in the runComponent
-    // callback.
-    /*
-    if(document != null) {
-      if(config.docFeatures != null && !config.docFeatures.isEmpty()) {
-        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/execute: setting document features "+config.docFeatures);
-        Utils.setDocumentFeatures(document.getFeatures(), config);
-      } else {
-        logger.debug("DEBUG parametrized controller pipeline "+this.getName()+"/execute: NOT setting document features, document="+document+" config="+config);
-      }
-    }
-    */
+    // NOTE: this has now moved into controller started
+    // Utils.setControllerParms(this, config);
+    
     // This will eventually delegate to the super implementation fo 
     // executeImpl which will then eventually delegate to runComponent, which
     // we handle separately below.
@@ -267,6 +279,25 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
     super.runComponent(componentIndex);    
   }
   
+  
+  /**
+   * Our own additions to what needs to get done for controllerExecutionStarted.
+   * 
+   * We have to make sure all the runtime parameters and run strategies are
+   * set correctly for the pipeline, then run the original to pass 
+   * the callback on to all elements of the pipeline. 
+   * 
+   * @param c
+   * @throws ExecutionException 
+   */
+  @Override
+  public void controllerExecutionStarted(Controller c)
+      throws ExecutionException {
+    Utils.setControllerParms(this, config);
+    super.controllerExecutionStarted(c);    
+  }
+  
+  
   public void setConfigForSubControllers(URL configFileUrl) {
     logger.debug("Running setConfigForSubControllers in "+this.getName()+" config="+configFileUrl+" have components: "+prList);
     for (int componentIndex = 0; componentIndex < prList.size(); componentIndex++) {
@@ -284,9 +315,10 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
   
   private List<Action> actions;
 
+  @Override
   public List<Action> getActions() {
     if (actions == null) {
-      actions = new ArrayList<Action>();
+      actions = new ArrayList<>();
 
       // Action 1: re-load the config file
       actions.add(

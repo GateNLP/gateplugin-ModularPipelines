@@ -42,12 +42,13 @@ import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- *
+ * Various static utility methods. 
+ * 
  * @author Johann Petrak
  */
 public class Utils {
   
-  protected static final Logger logger = Logger
+  protected static final Logger LOGGER = Logger
           .getLogger(Utils.class);
   
   /**
@@ -64,7 +65,7 @@ public class Utils {
    * @return a possibly empty Config instance
    */
   protected static Config readConfigFile(URL configFileUrl) {
-    logger.debug("Utils.readConfigFile: Loading config file from "+configFileUrl);
+    LOGGER.debug("Utils.readConfigFile: Loading config file from "+configFileUrl);
     Config configData = new Config();
     configData.origUrl = configFileUrl;
     File configFile = null;
@@ -91,13 +92,15 @@ public class Utils {
         }
         if (configsObj instanceof List) {
           // we expect each list element to be a map!
+          @SuppressWarnings("unchecked")
           List<Object> configs = (List) configsObj;
           for (Object configObj : configs) {
             if (configObj instanceof Map) {
+              @SuppressWarnings("unchecked")
               Map<String, Object> config = (Map<String, Object>) configObj;
               String what = (String) config.get("set");
               if (what == null) {
-                logger.info("No 'set' key in setting, ignored: " + config);
+                LOGGER.info("No 'set' key in setting, ignored: " + config);
               } else if (what.equals("prparm")) {
                 String controller = (String) config.get("controller");
                 String prname = (String) config.get("prname");
@@ -109,7 +112,7 @@ public class Utils {
                 String prId = controller + "\t" + prname;
                 Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
                 if (prparm == null) {
-                  prparm = new HashMap<String, Object>();
+                  prparm = new HashMap<>();
                 }
                 prparm.put(name, value);
                 configData.prRuntimeParms.put(prId, prparm);
@@ -124,7 +127,7 @@ public class Utils {
                 String prId = controller + "\t" + prname;
                 Map<String, Object> prparm = configData.prInitParms.get(prId);
                 if (prparm == null) {
-                  prparm = new HashMap<String, Object>();
+                  prparm = new HashMap<>();
                 }
                 prparm.put(name, value);
                 configData.prInitParms.put(prId, prparm);
@@ -143,7 +146,7 @@ public class Utils {
                 String prId = controller + "\t" + prname;
                 Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
                 if (prparm == null) {
-                  prparm = new HashMap<String, Object>();
+                  prparm = new HashMap<>();
                 }
                 prparm.put(name, value);
                 configData.prRuntimeParms.put(prId, prparm);
@@ -174,10 +177,7 @@ public class Utils {
                 if (name == null || value == null) {
                   throw new GateRuntimeException("config setting propset: name or value is null");
                 }
-                String valueString = null;
-                if(value != null) {
-                  valueString = value.toString();
-                }
+                String valueString = value.toString();
                 System.getProperties().put(name, valueString);
               } else if (what.toLowerCase().equals("inheritconfig")) {
                 File fullPath;
@@ -191,12 +191,12 @@ public class Utils {
                 } catch (MalformedURLException ex) {
                   throw new GateRuntimeException("Cannot create URL of full path for config file "+configFile,ex);
                 }
-                logger.debug("Set the global config file url to "+configData.globalConfigFileUrl);
+                LOGGER.debug("Set the global config file url to "+configData.globalConfigFileUrl);
               } else {
                 throw new GateRuntimeException("Unknown setting: "+what+" in "+configFile);
               }
             } else {
-              logger.info("Config element not a map, ignoring: " + configObj);
+              LOGGER.info("Config element not a map, ignoring: " + configObj);
             }
           }
         } else {
@@ -229,7 +229,7 @@ public class Utils {
           String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
           Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
           if (prparm == null) {
-            prparm = new HashMap<String, Object>();
+            prparm = new HashMap<>();
           }
           prparm.put(ctlAndPr.s3, System.getProperty(key));
           configData.prRuntimeParms.put(prId, prparm);
@@ -238,7 +238,7 @@ public class Utils {
           String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
           Map<String, Object> prparm = configData.prInitParms.get(prId);
           if (prparm == null) {
-            prparm = new HashMap<String, Object>();
+            prparm = new HashMap<>();
           }
           prparm.put(ctlAndPr.s3, System.getProperty(key));
           configData.prInitParms.put(prId, prparm);          
@@ -247,7 +247,7 @@ public class Utils {
           String prId = ctlAndPr.s1 + "\t" + ctlAndPr.s2;
           Map<String, Object> prparm = configData.prRuntimeParms.get(prId);
           if (prparm == null) {
-            prparm = new HashMap<String, Object>();
+            prparm = new HashMap<>();
           }
           prparm.put("$$RUNFLAG$$", Boolean.parseBoolean(System.getProperty(key)));
           configData.prRuntimeParms.put(prId, prparm);          
@@ -309,14 +309,14 @@ public class Utils {
   
   // NOTE: this method should be thread-safe!!!
   protected static void setControllerParms(Controller cntrlr, Config config) {
-    logger.debug("Setting controller parms for " + cntrlr.getName());
+    LOGGER.debug("Setting controller parms for " + cntrlr.getName());
     // we store both the actual runtime parameters and the run modes in 
     // config.prRuntimeParms so this is != null if either or both are set
     // in the config.
     if (config.prRuntimeParms != null) {
       String cName = cntrlr.getName();
       ConditionalController condController = null;
-      List<ProcessingResource> prs = null;
+      List<ProcessingResource> prs;
       List<RunningStrategy> strategies = null;
       if (cntrlr instanceof ConditionalController) {
         condController = (ConditionalController) cntrlr;
@@ -324,7 +324,7 @@ public class Utils {
       } 
       prs = (List<ProcessingResource>) cntrlr.getPRs();
       // create a map that maps names to prs for this controller
-      Map<String, Integer> prNums = new HashMap<String, Integer>();
+      Map<String, Integer> prNums = new HashMap<>();
       int i = 0;
       for (ProcessingResource pr : prs) {
         String id = cName + "\t" + pr.getName();
@@ -346,14 +346,14 @@ public class Utils {
           Map<String, Object> prparm = config.prRuntimeParms.get(prId);
           for (String parmName : prparm.keySet()) {
             Object parmValue = prparm.get(parmName);
-            logger.debug("Debug: trying to process PR setting " + parmValue + " for parm " + parmName + " in PR " + prId + " of " + cName);
+            LOGGER.debug("Debug: trying to process PR setting " + parmValue + " for parm " + parmName + " in PR " + prId + " of " + cName);
             if (parmName.equals("$$RUNFLAG$$")) {
-              logger.debug("Trying to set a runflag");
+              LOGGER.debug("Trying to set a runflag");
               if (condController != null) {
                 //System.out.println("DEBUG: Setting runflag "+parmName+" to "+parmValue+" for "+prId);
                 boolean flag = (Boolean) parmValue;
                 AnalyserRunningStrategy str = (AnalyserRunningStrategy) strategies.get(id);
-                logger.debug("Setting the run mode: " + flag);
+                LOGGER.debug("Setting the run mode: " + flag);
                 str.setRunMode(flag ? AnalyserRunningStrategy.RUN_ALWAYS : AnalyserRunningStrategy.RUN_NEVER);
               }
             } else {
@@ -367,7 +367,7 @@ public class Utils {
         } // if controller names match
       }
     } else {
-      logger.debug("prRuntimeParms is null!");
+      LOGGER.debug("prRuntimeParms is null!");
     }
   } // method setControllerParms
   

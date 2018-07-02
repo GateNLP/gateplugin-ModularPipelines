@@ -31,31 +31,31 @@ import org.apache.log4j.Logger;
  * @author johann
  */
 public class Config {
-  private static final Logger logger = Logger.getLogger("Config");
+  private static final Logger LOGGER = Logger.getLogger("Config");
   public Config() {
-    logger.debug("Config: creating new");
+    LOGGER.debug("Config: creating new");
   }
   // If this is non-null it signals that any sub-pipeline of the pipeline
   // which has this set should have their config file URL set to this too.
   // This is used to allow for an outer config file to set the config file 
   // of all inner pipelines to itself. 
-  URL globalConfigFileUrl = null;
+  public URL globalConfigFileUrl = null;
   // the orig URL is set to the URL that was given originally when this 
   // config file was read and is used to prevent that the same config file
   // is read several times.
-  URL origUrl = null;
-  FeatureMap docFeatures = gate.Factory.newFeatureMap();
-  FeatureMap docFeaturesOverridable = gate.Factory.newFeatureMap();
+  public URL origUrl = null;
+  public FeatureMap docFeatures = gate.Factory.newFeatureMap();
+  public FeatureMap docFeaturesOverridable = gate.Factory.newFeatureMap();
   // The prRuntimeParms map has as keys strings of the form "controllerName\tprName"
   // and maps those to a map that contains as key the parameter name and 
   // as value the parameter value
-  Map<String,Map<String,Object>> prRuntimeParms = new HashMap<String, Map<String, Object>>();
+  public Map<String,Map<String,Object>> prRuntimeParms = new HashMap<>();
   // Same, but for init parms
-  Map<String,Map<String,Object>> prInitParms = new HashMap<String, Map<String, Object>>();
+  public Map<String,Map<String,Object>> prInitParms = new HashMap<>();
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("URL="+origUrl);
+    sb.append("URL=").append(origUrl);
     sb.append(" ");
     sb.append("docFeatures: ");
     if(docFeatures != null) {
@@ -104,7 +104,7 @@ public class Config {
       sb.append("null");
     }
     sb.append(" ");
-    sb.append("globalConfigFileUrl="+globalConfigFileUrl);
+    sb.append("globalConfigFileUrl=").append(globalConfigFileUrl);
     return sb.toString();
   }
 }

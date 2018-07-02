@@ -27,25 +27,26 @@ import gate.util.persistence.ConditionalSerialAnalyserControllerPersistence;
 import gate.util.persistence.PersistenceManager;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
- *
+ * Class for handling persistance of the ParametrizedCorpusController.
+ * 
  * @author Johann Petrak
  */
 public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialAnalyserControllerPersistence {
   // we only override the createObject method because we need to intercept
   // the creation of the init params
   
-  protected static final Logger logger = Logger.getLogger(ParametrizedCorpusControllerPersistence.class);
+  protected static final Logger LOGGER = Logger.getLogger(ParametrizedCorpusControllerPersistence.class);
+  private static final long serialVersionUID = -6646255954744246631L;
   
   @Override
   public Object createObject() throws PersistenceException, ResourceInstantiationException {
     initParams = PersistenceManager.getTransientRepresentation(
             initParams,containingControllerName,initParamOverrides);
     FeatureMap ourParms = (FeatureMap)initParams;
-    logger.debug("=== Persistence START: "+ourParms);
+    LOGGER.debug("=== Persistence START: "+ourParms);
     // NOTE: in order to be able for a parent pipeline config file to override
     // the config settings of a sub pipeline, INCLUDING the init time settings,
     // we would need to be able to somehow know here at this point what the
@@ -66,7 +67,7 @@ public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialA
     // configFileUrl or the file specified by the overriding system property. 
     if(config != null && config.prInitParms != null) {
       if(initParamOverrides == null) {
-        initParamOverrides = new HashMap<String,Map<String,Object>>();
+        initParamOverrides = new HashMap<>();
       }
       initParamOverrides.putAll(config.prInitParms);
     }
@@ -84,7 +85,7 @@ public class ParametrizedCorpusControllerPersistence extends  ConditionalSerialA
     // only with a partly initialized object, which did not yet have the PR list.
     // To run any initialization which must happen after we have everything, we
     // use our own afterLoadCompleted() method:
-    logger.debug("=== Persistence END: "+ourParms+" calling afterLoadCompleted");
+    LOGGER.debug("=== Persistence END: "+ourParms+" calling afterLoadCompleted");
     obj.afterLoadCompleted();
     return obj;
   }
