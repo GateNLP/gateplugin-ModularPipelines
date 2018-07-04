@@ -30,11 +30,9 @@ import gate.LanguageAnalyser;
 import gate.ProcessingResource;
 import gate.Resource;
 import gate.creole.ConditionalSerialAnalyserController;
-import gate.creole.ControllerAwarePR;
 import gate.creole.ExecutionException;
 import gate.creole.ResourceData;
 import gate.creole.ResourceInstantiationException;
-import gate.creole.RunningStrategy;
 import gate.creole.metadata.CreoleParameter;
 import gate.creole.metadata.CreoleResource;
 import gate.creole.metadata.Optional;
@@ -295,6 +293,12 @@ public class ParametrizedCorpusController extends ConditionalSerialAnalyserContr
       throws ExecutionException {
     Utils.setControllerParms(this, config);
     super.controllerExecutionStarted(c);    
+  }
+  @Override
+  public void invokeControllerExecutionStarted()
+      throws ExecutionException {
+    Utils.setControllerParms(this, config);
+    super.invokeControllerExecutionStarted();    
   }
   
   
