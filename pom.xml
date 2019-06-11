@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <groupId>uk.ac.gate.plugins</groupId>
   <artifactId>modularpipelines</artifactId>
-  <version>2.3</version><!-- PLUGINVERSION -->
+  <version>2.4-SNAPSHOT</version><!-- PLUGINVERSION -->
   <name>Modular Pipelines</name>
   <description>A GATE plugin that provides a way to create modular nested pipelines where each subpipeline
     can get developed, tested and saved separately. Also allows to override runtime parameters,
